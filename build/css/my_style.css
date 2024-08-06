@@ -1,0 +1,91 @@
+body {
+    background: whitesmoke;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: absolute;
+}
+
+#root {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
+}
+
+.blur-overlay {
+    background: rgba(69, 149, 219, 0.58);
+    position: absolute;
+    top: 0
+}
+
+.home-title-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+}
+
+.top_nav {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+.ab-flex-column {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.sidebar-container {
+    background: white;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    animation: sidebar-animation;
+    animation-duration: 0.3s;
+    animation-timing-function: ease-in-out;
+    animation-direction: normal;
+    animation-iteration-count: 1;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.sidebar-overlay {
+    background: rgba(128, 128, 128, 0.534);
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    position: fixed;
+    top: 0;
+}
+
+.sidebar-container-mobile {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.company-logo {
+    width: 150px;
+    height: auto;
+    position: relative;
+}
+
+@media screen and (max-width: 768px){
+    .home-inputs{
+        flex-wrap: wrap;
+    }
+
+    .login-form-container {
+        width: 100%;
+    }
+}
+
+@keyframes sidebar-animation {
+    0% { transform: translateX(-40%)}
+    100% { transform: translateX(0)}
+}
