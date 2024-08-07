@@ -221,10 +221,9 @@ function App(params: any) {
                                 )
                             )
                         } */}
-                        <audio ref={audio_ref} src="/audio/level-up-2-199574.mp3" autoPlay style={{display: "none", position: "fixed"}} />
                         {showAlert ? (<Alert message={alertMessage} color={alertType} />) : ""}
                         {showWaiting ? (<Waiting />) : ""}
-                        {menu ? (<SideBar />) : ""}
+                        {/* {menu ? (<SideBar />) : ""} */}
                     </BrowserRouter>
                 </SocketContext.Provider>
             </AuthContext.Provider>
