@@ -195,7 +195,7 @@ function App(params: any) {
                         
                             <Routes>
                                 <Route path="/signup" element={<SignUpPage/>}/>
-                                <Route path="/login" element={<LoginPage/>}/>
+                                <Route path="/" element={<LoginPage/>}/>
                                 <Route path="/ts" element={<MiniDrawer />}/>
 
                             </Routes>
