@@ -28,7 +28,7 @@ function SideBarComponent() {
         boxShadow: "0 0 10px 1px gray",
         borderRadius: "10px",
         overflow: "hidden",
-        padding: "10px 15px"
+        padding: "10px 15px",
     });
 
     const navigate = useNavigate();
@@ -37,7 +37,7 @@ function SideBarComponent() {
     // }, [loggedUser]);
 
     const toggleSidebar = () => {
-        setStyle((st) => ({...st, width: (menu ? "max-content" : "20%")}))
+        setStyle((st) => ({...st, width: (menu ? "max-content" : "19%")}))
         setMenu(!menu);
     }
 
