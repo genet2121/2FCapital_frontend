@@ -20,8 +20,14 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import SidebarItem from '../Components/NavBars/SidebarItem';
 import SideBarComponent from '../Components/NavBars/SideBar';
+import TableCom from '../Components/Reusables/TableCom';
+import { useContext } from 'react';
+import AlertContext from '../Contexts/AlertContext';
 
 export default function MiniDrawer() {
+
+  const { setAlert, setWaiting, setMenu, menu } = useContext(AlertContext);
+
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
@@ -42,14 +48,24 @@ export default function MiniDrawer() {
 
       <SideBarComponent />
 
-      <div style={{ display: "flex", flexDirection: "column", width: "100%", padding: "0 10px" }}>
+      <div style={{ display: "flex", flexDirection: "column", width: (menu ? "81%" : "100%"), padding: "0 10px", position: "relative" }}>
+
+        {/* top nav */}
         <div style={{width: "100%", height: "40px", background: "white", borderRadius: "10px", marginBottom: "10px"}}></div>
+
         <div style={{display: "flex", flexDirection: "row", height: "100%", width: "100%"}}>
-          <div style={{width: "20vw", height: "100%", background: "white", borderRadius: "10px", marginRight: "10px"}}></div>
-          <div style={{display: "flex", flexDirection: "column", width: "100%", height: "100%"}}>
-            <div style={{width: "100%", height: "65%", background: "white", marginBottom: "10px", borderRadius: "10px"}}></div>
+
+          {/* inner sidebar */}
+          <div style={{width: "25%", height: "100%", background: "white", borderRadius: "10px", marginRight: "10px"}}></div>
+
+          {/* main content */}
+          <div style={{display: "flex", flexDirection: "column", width: "75%", height: "100%"}}>
+            <div style={{width: "100%", height: "65%", background: "white", marginBottom: "10px", borderRadius: "10px", padding: "10px", overflow: "auto"}}>
+              <TableCom />
+            </div>
             <div style={{width: "100%", height: "45%", background: "white", marginBottom: "10px", borderRadius: "10px"}}></div>
           </div>
+
         </div>
       </div>
     </div>

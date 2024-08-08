@@ -26,6 +26,8 @@ import UserRoles from "./Enums/UserRoles";
 import Utils from "./Models/Utils";
 import SignUpPage from "./Views/SignUp";
 import MiniDrawer from "./Views/TestPage";
+import UserTable from "./Views/UserTable";
+import BookUpload from "./Views/BookUploadForm";
 
 function App(params: any) {
 
@@ -197,6 +199,8 @@ function App(params: any) {
                                 <Route path="/signup" element={<SignUpPage/>}/>
                                 <Route path="/" element={<LoginPage/>}/>
                                 <Route path="/ts" element={<MiniDrawer />}/>
+                                <Route path="/user" element={<UserTable />}/>
+                                <Route path="/book" element={<BookUpload />}/>
 
                             </Routes>
                             {/* {
