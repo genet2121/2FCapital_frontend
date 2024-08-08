@@ -1,11 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 
 export const props: any = {
-    // baseURL: "http://192.168.1.115:8080/",
-    baseURL: "https://management.nuwamobile.com/api/",
-    // baseURL: "http://192.168.0.103:3005/api/",
-    // baseURL: "http://206.189.190.190:3005/api/",
-    // baseURL: "http://207.154.254.9:1111/api/",
+    baseURL: "http://localhost:3005/api/",
     // crossdomain: true,
     headers: {
     //     "Referrer-Policy": "no-referrer",

@@ -33,7 +33,7 @@ function SignUpPage() {
             SIGN UP
           </Button>
           <Typography variant="body2" align="center">
-            Already have an account? <Link href="/login">Login</Link>
+            Already have an account? <Link href="/">Login</Link>
           </Typography>
         </Box>
       </Grid>
