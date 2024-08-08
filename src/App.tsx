@@ -28,6 +28,7 @@ import SignUpPage from "./Views/SignUp";
 import MiniDrawer from "./Views/TestPage";
 import UserTable from "./Views/UserTable";
 import BookUpload from "./Views/BookUploadForm";
+import Workspace from "./Views/Workspace";
 
 function App(params: any) {
 
@@ -200,7 +201,7 @@ function App(params: any) {
                                 <Route path="/login" element={<LoginPage/>}/>
                                 <Route path="/ts" element={<MiniDrawer />}/>
                                 <Route path="/user" element={<UserTable />}/>
-                                <Route path="/book" element={<BookUpload />}/>
+                                <Route path="/book" element={<Workspace />}/>
 
                             </Routes>
                             {/* {
