@@ -29,6 +29,8 @@ import MiniDrawer from "./Views/TestPage";
 import UserTable from "./Views/UserTable";
 import BookUpload from "./Views/BookUploadForm";
 import Workspace from "./Views/Workspace";
+import Chalenge from "./Views/Chalenge2";
+import SuccessDialog from "./Components/Reusables/SucessDilog";
 
 function App(params: any) {
 
@@ -202,6 +204,8 @@ function App(params: any) {
                                 <Route path="/ts" element={<MiniDrawer />}/>
                                 <Route path="/user" element={<UserTable />}/>
                                 <Route path="/book" element={<Workspace />}/>
+                                <Route path="/challenge" element={<Chalenge />}/>
+                                <Route path="/success" element={<SuccessDialog />}/>
 
                             </Routes>
                             {/* {
