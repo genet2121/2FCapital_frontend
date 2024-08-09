@@ -31,6 +31,7 @@ import BookUpload from "./Views/BookUploadForm";
 import Workspace from "./Views/Workspace";
 import Chalenge from "./Views/Chalenge2";
 import SuccessDialog from "./Components/Reusables/SucessDilog";
+import OwnerTable from "./Views/OwnerTab";
 
 function App(params: any) {
 
@@ -206,6 +207,7 @@ function App(params: any) {
                                 <Route path="/book" element={<Workspace />}/>
                                 <Route path="/challenge" element={<Chalenge />}/>
                                 <Route path="/success" element={<SuccessDialog />}/>
+                                <Route path="/owner" element={<OwnerTable />}/>
 
                             </Routes>
                             {/* {
