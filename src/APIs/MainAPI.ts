@@ -3,7 +3,7 @@ import FieldTypes from "../Enums/FiedTypes";
 import Operators from "../Enums/Operators";
 import IPagination from "../Intefaces/IPagination";
 import Utils from "../Models/Utils";
-import { authFileRequest, Authorized } from "./api";
+import { authFileRequest, Authorized, normal } from "./api";
 
 class MainAPI {
 
@@ -124,6 +124,10 @@ class MainAPI {
 
     public static async createNew(token: string, table: string, new_data: any): Promise<any> {
         return await Authorized(token).bodyRequest("post", "crud/create", {tableName: table, data: new_data});
+    }
+    
+    public static async createNewNoAuth(table: string, new_data: any): Promise<any> {
+        return await normal().bodyRequest("post", "crud/create", {tableName: table, data: new_data});
     }
 
     public static async update(token: string, tableName: string, new_data: any): Promise<any> {

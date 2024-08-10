@@ -46,7 +46,7 @@ function LoginPage() {
 
             setWaiting(false);
             setAlert("working", "info");
-            navigate("/");
+            navigate("/ts");
         } catch (error: any) {
             setWaiting(false);
             setAlert(error.message, "error");
@@ -77,7 +77,7 @@ function LoginPage() {
               label="Remember me"
               sx={{ mb: 2 }}
             />
-            <Button variant="contained" color="primary" fullWidth sx={{ mb: 2 }}>
+            <Button variant="contained" color="primary" fullWidth sx={{ mb: 2 }} type="submit">
             Login
             </Button>
             <Typography variant="body2" align="center">
