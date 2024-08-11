@@ -27,10 +27,9 @@ function SidebarItem({Icon, text, open, method}: {Icon: any, text: string, open:
     }
 
     return (
-        <div style={style} onMouseEnter={onHover} onMouseLeave={onBlur}>
+        <div style={style} onMouseEnter={onHover} onMouseLeave={onBlur} onClick={method}>
             <Icon 
                 sx={open ? { marginRight: "10px", fontSize: "17px" } : { marginLeft: "-3px", fontSize: "17px" }}
-                onClick={method}
             />
             <h6 style={{display: (open ? "" : "none"), fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", fontWeight: "normal", fontSize: "14px", margin: 0}}>{text}</h6>
         </div>

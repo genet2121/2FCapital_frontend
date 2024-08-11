@@ -70,9 +70,13 @@ function SignUpPage() {
             label="I accept the Terms and Conditions"
             sx={{ mb: 2 }}
           />
-          {contract ? (<Button variant="contained" color="primary" fullWidth sx={{ mb: 2 }} onClick={onSubmit}>
-            SIGN UP
-          </Button>) : "" }
+          {
+            contract ? (
+              <Button variant="contained" color="primary" fullWidth sx={{ mb: 2 }} onClick={onSubmit}>
+                SIGN UP
+              </Button>
+            ) : ""
+          }
           <Typography variant="body2" align="center">
             Already have an account? <Link href="/">Login</Link>
           </Typography>

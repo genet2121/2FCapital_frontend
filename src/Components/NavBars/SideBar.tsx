@@ -13,6 +13,14 @@ import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
 import SidebarItem from './SidebarItem';
 import Divider from '@mui/material/Divider';
+import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
+import BookIcon from '@mui/icons-material/Book';
+import PersonIcon from '@mui/icons-material/Person';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import QueueIcon from '@mui/icons-material/Queue';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import SettingsIcon from '@mui/icons-material/Settings';
+import PostAddIcon from '@mui/icons-material/PostAdd';
 
 function SideBarComponent() {
 
@@ -21,6 +29,8 @@ function SideBarComponent() {
 
     // const [navList, setNavList] = useState<INavigation[]>([]);
     const [style, setStyle] = useState({
+        display: "flex",
+        justifyContent: "space-between",
         transitionDuration: "1s",
         width: "max-content",
         background: "#171B36",
@@ -53,75 +63,62 @@ function SideBarComponent() {
 
 
     return (
-        <div style={style}>
+        <div style={{...style, flexDirection: "column"}}>
 
-            <div style={{ display: "flex", alignItems: "center", width: "max-width", height: "max-height", cursor: "pointer" }}>
-                <MenuIcon
-                    sx={menu ? { marginRight: "10px", fontSize: "30px" } : { margin: "0 auto", fontSize: "30px" }}
-                    onClick={toggleSidebar}
-                />
-                <img src='/images/Sidebar_logo.png' style={{display: (menu ? "" : "none"), width: "35px", marginRight: "10px"}} />
-                <h6 style={{display: (menu ? "" : "none"), fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", fontWeight: "normal", fontSize: "17px", margin: 0, color: "#00ABFF" }}>Book Rent</h6>
+            <div style={{width: "100%", height: "max-content"}}>
+
+                <div style={{ display: "flex", alignItems: "center", width: "max-width", height: "max-height", cursor: "pointer" }}>
+                    <MenuIcon
+                        sx={menu ? { marginRight: "10px", fontSize: "30px" } : { margin: "0 auto", fontSize: "30px" }}
+                        onClick={toggleSidebar}
+                    />
+                    <img src='/images/Sidebar_logo.png' style={{display: (menu ? "" : "none"), width: "35px", marginRight: "10px"}} />
+                    <h6 style={{display: (menu ? "" : "none"), fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", fontWeight: "normal", fontSize: "17px", margin: 0, color: "#00ABFF" }}>Book Rent</h6>
+                </div>
+                <Divider sx={{background: "white", margin: "10px 0"}} />
+
+                <SidebarItem Icon={SpaceDashboardIcon} open={menu} text={"Dashboard"} method={() => {navigate("/ts")}} />
+                <SidebarItem Icon={BookIcon} open={menu} text={"Books"} method={() => {navigate("/book")}} />
+                <SidebarItem Icon={BookIcon} open={menu} text={"Avalable Books"} method={() => {navigate("/available_books")}} />
+                <SidebarItem Icon={QueueIcon} open={menu} text={"Book Upload"} method={() => {navigate("/new_book")}} />
+                <SidebarItem Icon={PersonIcon} open={menu} text={"Owners"} method={() => {navigate("/owner")}} />
+                <SidebarItem Icon={LibraryBooksIcon} open={menu} text={"Rent List"} method={() => {}} />
+                <SidebarItem Icon={PostAddIcon} open={menu} text={"New Rent"} method={() => {}} />
+                <Divider sx={{background: "white", margin: "10px 0"}} />
+                <SidebarItem Icon={NotificationsNoneIcon} open={menu} text={"Notifications"} method={() => {}} />
+                <SidebarItem Icon={SettingsIcon} open={menu} text={"Settings"} method={() => {}} />
+
             </div>
-            <Divider sx={{background: "white", margin: "10px 0"}} />
 
-            <SidebarItem Icon={MailIcon} open={menu} text={"new button"} method={() => {}} />
-            <SidebarItem Icon={MailIcon} open={menu} text={"Inbox"} method={() => {}} />
-            <SidebarItem Icon={MailIcon} open={menu} text={"Outbox"} method={() => {}} />
+            <button
+                style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    background: "rgba(255, 255, 255, 0.2)",
+                    color: "white",
+                    alignItems: "center",
+                    width: "100%",
+                    height: "max-height",
+                    borderRadius: "5px",
+                    padding: "8px",
+                    marginBottom: "5px",
+                    transitionDuration: "0.5s",
+                    border: "none",
+                    cursor: "pointer"
+                }}
+                onClick={() => {
+                    // exitSideBar()
+                    removeCookie("login_token");
+                    setTimeout(() => {
+                        window.location.href = window.location.origin;
+                    }, 1500);
+                }}
+            >
+                <LogoutIcon sx={menu ? { marginRight: "10px", fontSize: "17px" } : { marginLeft: "-3px", fontSize: "17px" }} />
+                <h6 style={{display: (menu ? "" : "none"), fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", fontWeight: "normal", fontSize: "14px", margin: 0}}>Logout</h6>
+            </button>
 
         </div>
-        // <div className="sidebar-overlay" onClick={() => { setTimeout(() => {setMenu(false)}, 50) }}>
-        //     <div className="sidebar-container pt-2 shadow-sm" style={{ width: isMobile ? "70%" : "20%" }}>
-
-        //         <div className="w-100 pe-2 d-flex justify-content-end">
-        //             <IconButton onClick={() => { setMenu(false) }} >
-        //                 <ArrowBackIcon />
-        //             </IconButton>
-        //         </div>
-        //         <div className="d-flex pt-3 justify-content-center">
-        //             <img src={`/images/main_logo.svg`} alt="image" style={{ width: "150px", height: "auto", }} />
-        //         </div>
-        //         <h5 className="card-title mb-5 text-center" >Nuwa Mobile</h5>
-
-        //         <div className="list-group list-group-flush">
-        //             {
-        //                 navList.map((nav) => {
-        //                     if(nav.type == NavigationTypes.LINK) {
-        //                         return (
-        //                             <Link to={nav.link ?? "/"} className="list-group-item list-group-item-action" onClick={() => {
-        //                                 exitSideBar()
-        //                             }} >
-        //                                 <nav.Icon /> {nav.Name}
-        //                             </Link>
-        //                         );
-        //                     }else{
-        //                         return (
-        //                             <button className="btn list-group-item list-group-item-action" onClick={async () => {
-        //                                 if(nav.action){
-        //                                     await nav.action(loggedUser);
-        //                                 }
-        //                                 exitSideBar()
-        //                             }} >
-        //                                 <nav.Icon /> {nav.Name}
-        //                             </button>
-        //                         );
-        //                     }
-        //                 })
-        //             }
-        //             <button className="btn list-group-item list-group-item-action" onClick={() => {
-        //                 // exitSideBar()
-        //                 removeCookie("login_token");
-        //                 setTimeout(() => {
-        //                     window.location.href = window.location.origin;
-        //                 }, 1500);
-        //             }} >
-        //                 <LogoutIcon /> Sign Out
-        //             </button>
-                    
-        //         </div>
-
-        //     </div>
-        // </div>
     );
 }
 
