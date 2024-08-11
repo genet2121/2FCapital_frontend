@@ -5,9 +5,11 @@ import AlertContext from '../Contexts/AlertContext';
 import AuthContext from '../Contexts/AuthContext';
 import { normal } from '../APIs/api';
 import MainAPI from '../APIs/MainAPI';
+import { useNavigate } from 'react-router-dom';
+
 
 function SignUpPage() {
-
+  const navigate = useNavigate();
   const { setAlert, setWaiting, setMenu, menu } = useContext(AlertContext);
   const { setLoggedUser, setLoggedIn, setCookie } = useContext(AuthContext);
 
@@ -38,7 +40,8 @@ function SignUpPage() {
       const { c_password, ...dataToSend } = data;
 
       await MainAPI.createNewNoAuth("user", { ...dataToSend, Status: "true", Approved: "false", type: "owner" });
-  
+      
+      navigate("/")
       // await MainAPI.createNewNoAuth("user", { ...data, Status: "true", Approved: "false", type: "owner" });
 
     } catch(error: any) {

@@ -5,4 +5,7 @@ export default interface AuthResult {
     Email: string;
     Phone: string;
     Roles: string[];
+    Approved: string,
+    Location: string,
+    Status: string
 }

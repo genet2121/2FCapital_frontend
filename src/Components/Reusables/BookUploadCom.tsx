@@ -208,6 +208,9 @@ const BookUploadForm = () => {
         <MenuItem disabled value="">
         <em>Category</em>
         </MenuItem>
+        <MenuItem  value="fiction">
+        Fiction
+        </MenuItem>
         </TextField>
         <Button onClick={handleDialogClose} variant="contained" color="primary" fullWidth sx={{ mt: 2, background:'#00ABFF', height:'60px' }}>
             Add

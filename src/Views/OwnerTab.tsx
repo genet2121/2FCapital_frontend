@@ -33,34 +33,23 @@ const OwnerTable = () => {
     setOpen(!open);
   }
   return (
-    <div style={{ display: 'flex', flexDirection: "row", padding: "10px 10px", background: "#F0F2FF", width: "100%", height: "100%" }}>
-
-      <SideBarComponent />
-
-      <div style={{  width: (menu ? "81%" : "100%"), padding: "0 10px", position: "relative", height:'100%', overflow: 'hidden auto' }}>
+    <div style={{  width: "100%", position: "relative", height:'100%'}}>
 
         {/* top nav */}
         <div style={{width: "100%", height: "40px", background: "white", borderRadius: "10px", marginBottom: "10px", padding: '5px 20px', fontSize: '18px'}}>hey</div>
 
-        <div style={{ width: "100%"}}>
+        <div style={{ width: "100%", overflowY: 'auto' }}>
 
-        
-
-          {/* main content */}
-          {/* <div style={{display: "flex", flexDirection: "column", width: "100%", height: "100%"}}> */}
             <div style={{width: "100%", height: "100%", background: "white", marginBottom: "10px", borderRadius: "10px", }}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-    <QueryClientProvider client={queryClient}>
-        <OwnerTableCom />
-    </QueryClientProvider>
-  </LocalizationProvider>
+              <QueryClientProvider client={queryClient}>
+                  <OwnerTableCom />
+              </QueryClientProvider>
+            </LocalizationProvider>
             </div>
-            
-          {/* </div> */}
 
         </div>
       </div>
-    </div>
   );
  
   

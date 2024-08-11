@@ -8,15 +8,8 @@ import Waiting from "./Components/Extra/Waiting";
 import { useCookies } from "react-cookie";
 import Error from "./Views/Error";
 import LoginPage from "./Views/Login";
-import SideBar from "./Components/NavBars/SideBar";
-import Account from "./Views/Account";
-import Dashboard from "./Views/Dashboard";
-import CreateCompany from "./Views/CreateCompany";
 import AuthResult from "./Intefaces/AuthResult";
 import LocalData from "./Intefaces/LocalData";
-import ResetAccount from "./Views/ResetAccount";
-import TableComponent from "./Views/TableComponent";
-import ChatPage from "./Views/ChatPage";
 import MainAPI from "./APIs/MainAPI";
 import IServerResponse from "./Intefaces/IServerResponse";
 import SocketContext from "./Contexts/SocketContext";
@@ -27,12 +20,15 @@ import Utils from "./Models/Utils";
 import SignUpPage from "./Views/SignUp";
 import MiniDrawer from "./Views/TestPage";
 import UserTable from "./Views/UserTable";
-import BookUpload from "./Views/BookUploadForm";
 import Workspace from "./Views/Workspace";
 import Chalenge from "./Views/Chalenge2";
 import SuccessDialog from "./Components/Reusables/SucessDilog";
 import OwnerTable from "./Views/OwnerTab";
 import AvailableBooks from "./Views/AvalableBooks";
+import AbilityContext from "./Contexts/AbilityContext";
+import Authorization from "./Models/Authorization";
+import MainScreen from "./Views/MainScreen";
+import NewRent from "./Views/NewRent";
 
 function App(params: any) {
 
@@ -41,7 +37,7 @@ function App(params: any) {
     const [cookies, setCookie, removeCookie] = useCookies(["login_token"]);
     const [authWaiting, setAuthWaiting] = useState<boolean>(false);
     const [showAlert, setShowAlert] = useState<boolean>(false);
-    const [showWaiting, setWaiting] = useState<boolean>(false);
+    const [showWaiting, setWaiting] = useState<boolean>(true);
     const [alertType, setAlertType] = useState<"success" | "error" | "warning" | "info">("info");
     const [alertMessage, setMessage] = useState<string>("");
     const [menu, setMenu] = useState<boolean>(false);
@@ -62,6 +58,7 @@ function App(params: any) {
     const [chatMessage, setChatMessage] = useState<string>("");
     const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
     const [unreadMessages, setUnreadMessages] = useState<any[]>([]);
+    const [ability, setAbility] = useState<any>(null);
 
     const audio_ref = useRef<any>(null);
 
@@ -74,6 +71,7 @@ function App(params: any) {
             let response = await information(token);
             setLoggedIn(response.status);
             setLoggedUser(response.data);
+            setAbility(Authorization(response.data));
             await loadLocalData();
             setAuthWaiting(false);
             setTimeout(() => { setWaiting(false); }, 1);
@@ -189,56 +187,50 @@ function App(params: any) {
     }
 
     return (
-        <AlertContext.Provider value={{ showAlert, alertType, setAlertType, setAlert, setWaiting, menu, setMenu }}>
-            <AuthContext.Provider value={{
-                isLoggedIn, loggedUser, setLoggedUser, setLoggedIn, setCookie, cookies, removeCookie, authWaiting, localData
-            }}>
-                <SocketContext.Provider value={{
-                    isReady: isServerReady, unreadMessages, sendMessage: sendServerRequest, chatInfo, chatMessage,
-                    server: socketServer, serverMessage, onlineUsers, markAsRead
+        <AbilityContext.Provider value={ability}>
+            <AlertContext.Provider value={{ showAlert, alertType, setAlertType, setAlert, setWaiting, menu, setMenu }}>
+                <AuthContext.Provider value={{
+                    isLoggedIn, loggedUser, setLoggedUser, setLoggedIn, setCookie, cookies, removeCookie, authWaiting, localData
                 }}>
+                    <SocketContext.Provider value={{
+                        isReady: isServerReady, unreadMessages, sendMessage: sendServerRequest, chatInfo, chatMessage,
+                        server: socketServer, serverMessage, onlineUsers, markAsRead
+                    }}>
 
-                    <BrowserRouter>
-
-                            <Routes>
-                                <Route path="/signup" element={<SignUpPage/>}/>
-                                <Route path="/" element={<LoginPage/>}/>
-                                <Route path="/available_books" element={<AvailableBooks/>}/>
-                                <Route path="/ts" element={<MiniDrawer />}/>
-                                <Route path="/user" element={<UserTable />}/>
-                                <Route path="/new_book" element={<Workspace />}/>
-                                <Route path="/challenge" element={<Chalenge />}/>
-                                <Route path="/success" element={<SuccessDialog />}/>
-                                <Route path="/owner" element={<OwnerTable />}/>
-
-                            </Routes>
-                            {/* {
-                            !authWaiting && (
-                                !isLoggedIn ? (
-                                    <Routes>
-                                        <Route path="/" element={<LoginPage />} />
-                                        <Route path="/reset" element={<ResetAccount />} />
-                                        <Route path="*" element={<Error />} />
-                                    </Routes>
-                                ) : (
-                                    <Routes>
-                                        <Route path="/chat" element={<ChatPage />} />
-                                        <Route path="/list/:name" element={<TableComponent />} />
-                                        <Route path="/form/:name/:r_id" element={<CreateCompany />} />
-                                        <Route path="/profile" element={<Account />} />
-                                        <Route path="/" element={<Dashboard />} />
-                                        <Route path="*" element={<Error />} />
-                                    </Routes>
+                        <BrowserRouter>
+                            {
+                                !authWaiting && (
+                                    !isLoggedIn ? (
+                                        <Routes>
+                                            <Route path="/signup" element={<SignUpPage/>}/>
+                                            <Route path="/" element={<LoginPage/>}/>
+                                            <Route path="*" element={<Error />} />
+                                        </Routes>
+                                    ) : (
+                                        <Routes>
+                                            <Route path="/" element={<MainScreen />}>
+                                                <Route path="available_books" element={<AvailableBooks/>}/>
+                                                <Route path="" element={<MiniDrawer />}/>
+                                                <Route path="user" element={<UserTable />}/>
+                                                <Route path="new_book" element={<Workspace />}/>
+                                                <Route path="challenge" element={<Chalenge />}/>
+                                                <Route path="success" element={<SuccessDialog />}/>
+                                                <Route path="owner" element={<OwnerTable />}/>
+                                                <Route path="new_rent" element={<NewRent />}/>
+                                                <Route path="*" element={<Error />} />
+                                            </Route>
+                                        </Routes>
+                                    )
                                 )
-                            )
-                        } */}
-                        {showAlert ? (<Alert message={alertMessage} color={alertType} />) : ""}
-                        {showWaiting ? (<Waiting />) : ""}
-                        {/* {menu ? (<SideBar />) : ""} */}
-                    </BrowserRouter>
-                </SocketContext.Provider>
-            </AuthContext.Provider>
-        </AlertContext.Provider>
+                            }
+                            {showAlert ? (<Alert message={alertMessage} color={alertType} />) : ""}
+                            {showWaiting ? (<Waiting />) : ""}
+                            {/* {menu ? (<SideBar />) : ""} */}
+                        </BrowserRouter>
+                    </SocketContext.Provider>
+                </AuthContext.Provider>
+            </AlertContext.Provider>
+        </AbilityContext.Provider>
     );
 
 }

@@ -77,13 +77,13 @@ function SideBarComponent() {
                 </div>
                 <Divider sx={{background: "white", margin: "10px 0"}} />
 
-                <SidebarItem Icon={SpaceDashboardIcon} open={menu} text={"Dashboard"} method={() => {navigate("/ts")}} />
+                <SidebarItem Icon={SpaceDashboardIcon} open={menu} text={"Dashboard"} method={() => {navigate("/")}} />
                 <SidebarItem Icon={BookIcon} open={menu} text={"Books"} method={() => {navigate("/book")}} />
                 <SidebarItem Icon={BookIcon} open={menu} text={"Avalable Books"} method={() => {navigate("/available_books")}} />
                 <SidebarItem Icon={QueueIcon} open={menu} text={"Book Upload"} method={() => {navigate("/new_book")}} />
                 <SidebarItem Icon={PersonIcon} open={menu} text={"Owners"} method={() => {navigate("/owner")}} />
                 <SidebarItem Icon={LibraryBooksIcon} open={menu} text={"Rent List"} method={() => {}} />
-                <SidebarItem Icon={PostAddIcon} open={menu} text={"New Rent"} method={() => {}} />
+                <SidebarItem Icon={PostAddIcon} open={menu} text={"New Rent"} method={() => {navigate("/new_rent")}} />
                 <Divider sx={{background: "white", margin: "10px 0"}} />
                 <SidebarItem Icon={NotificationsNoneIcon} open={menu} text={"Notifications"} method={() => {}} />
                 <SidebarItem Icon={SettingsIcon} open={menu} text={"Settings"} method={() => {}} />
