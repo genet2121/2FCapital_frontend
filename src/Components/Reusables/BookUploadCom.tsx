@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TextField, MenuItem, Button, Box, Typography, FormControl, InputLabel, Select, SelectChangeEvent, Hidden, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 import OutlinedInput from '@mui/material/OutlinedInput';
+import MainAPI from '../../APIs/MainAPI';
+// import Cookies from 'js-cookie';
+import { Category } from '../../Intefaces/Category';
+import { Cookies, useCookies } from 'react-cookie';
+
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -41,7 +46,37 @@ const BookUploadForm = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
 
- 
+  
+  // State for dialog form
+  const [bookName, setBookName] = useState('');
+  const [authorName, setAuthorName] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [cookies] = useCookies(['login_token']);
+  const [loggedUser, setLoggedUser] = useState(null);
+
+
+  useEffect(() => {
+    if (isDialogOpen) {
+      fetchCategories();
+    }
+  }, [isDialogOpen]);
+
+  const fetchCategories = async () => {
+    try {
+      const token = cookies.login_token;
+      const condition = { type: 'book_category' };
+      const response = await MainAPI.getAll(token, 'choice', 1, 10, condition);
+      setCategories(response.Items);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const handleCategoryChange = (event:any) => {
+    setSelectedCategory(event.target.value);
+  };
+  
   const handleBookChange = (event:any) => {
     if (event.target.value === 'Add') {
       setIsDialogOpen(true);
@@ -52,6 +87,23 @@ const BookUploadForm = () => {
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
+  };
+  const handleAddBook = async () => {
+    try {
+      const token = cookies.login_token;
+      const ownerId = 2; 
+      const newBook = {
+        name: bookName,
+        author: authorName,
+        category: selectedCategory,
+        owner_id: ownerId,
+      };
+      await MainAPI.createNew(token, 'book', newBook);
+      // Optionally, handle successful response here
+      handleDialogClose(); // Close the dialog
+    } catch (error) {
+      console.error('Error adding new book:', error);
+    }
   };
   const handleBookQuantityChange = (event: any) => {
     setBookQuantity(event.target.value);
@@ -178,48 +230,48 @@ const BookUploadForm = () => {
         Submit
       </Button>
       <Dialog open={isDialogOpen} onClose={handleDialogClose}>
-        <DialogTitle sx={{textAlign: 'center'}}>Add a New Book</DialogTitle>
+        <DialogTitle sx={{ textAlign: 'center' }}>Add a New Book</DialogTitle>
         <DialogContent>
-          {/* Dialog content goes here */}
           <TextField
-          label="Book Name"
-          id="filled-size-normal"
-          defaultValue="Book Name"
-          variant="filled"
-          fullWidth
-        />
+            label="Book Name"
+            variant="filled"
+            fullWidth
+            value={bookName}
+            onChange={(e) => setBookName(e.target.value)}
+          />
           <TextField
-          label="Author Name"
-          id="filled-size-normal"
-          defaultValue="Author Name"
-          variant="filled"
-          fullWidth
-          sx={{ mt: 2 }}
-        />
-         <TextField
-          id="filled-select-currency"
-          select
-          label="Category"
-          defaultValue="Category"
-          fullWidth
-          variant="filled"
-          sx={{ mt: 2 }}
-        >
-        <MenuItem disabled value="">
-        <em>Category</em>
-        </MenuItem>
-        <MenuItem  value="fiction">
-        Fiction
-        </MenuItem>
-        </TextField>
-        <Button onClick={handleDialogClose} variant="contained" color="primary" fullWidth sx={{ mt: 2, background:'#00ABFF', height:'60px' }}>
-            Add
-          </Button>
-          {/* <TextField label="Author" fullWidth sx={{ mt: 2 }} /> */}
+            label="Author Name"
+            variant="filled"
+            fullWidth
+            sx={{ mt: 2 }}
+            value={authorName}
+            onChange={(e) => setAuthorName(e.target.value)}
+          />
+          <TextField
+            select
+            label="Category"
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+            fullWidth
+            variant="filled"
+            sx={{ mt: 2 }}
+          >
+            <MenuItem disabled value="">
+              <em>Select a Category</em>
+            </MenuItem>
+            {categories.map((category) => (
+              <MenuItem key={category.id} value={category.value}>
+                {category.label}
+              </MenuItem>
+            ))}
+          </TextField>
         </DialogContent>
         <DialogActions>
-          {/* <Button onClick={handleDialogClose} >Cancel</Button> */}
          
+          
+          <Button onClick={handleAddBook} variant="contained" color="primary" fullWidth sx={{ mt: 2, background: '#00ABFF', height: '60px' }}>
+            Add
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
