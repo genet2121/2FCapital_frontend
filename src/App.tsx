@@ -32,6 +32,7 @@ import Workspace from "./Views/Workspace";
 import Chalenge from "./Views/Chalenge2";
 import SuccessDialog from "./Components/Reusables/SucessDilog";
 import OwnerTable from "./Views/OwnerTab";
+import AvailableBooks from "./Views/AvalableBooks";
 
 function App(params: any) {
 
@@ -198,13 +199,14 @@ function App(params: any) {
                 }}>
 
                     <BrowserRouter>
-                        
+
                             <Routes>
                                 <Route path="/signup" element={<SignUpPage/>}/>
                                 <Route path="/" element={<LoginPage/>}/>
+                                <Route path="/available_books" element={<AvailableBooks/>}/>
                                 <Route path="/ts" element={<MiniDrawer />}/>
                                 <Route path="/user" element={<UserTable />}/>
-                                <Route path="/book" element={<Workspace />}/>
+                                <Route path="/new_book" element={<Workspace />}/>
                                 <Route path="/challenge" element={<Chalenge />}/>
                                 <Route path="/success" element={<SuccessDialog />}/>
                                 <Route path="/owner" element={<OwnerTable />}/>
