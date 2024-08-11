@@ -35,7 +35,11 @@ function SignUpPage() {
       if(data.password != data.c_password) {
         throw new Error("Password does not match!");
       }
-      await MainAPI.createNewNoAuth("user", { ...data, Status: "true", Approved: "false", type: "owner" });
+      const { c_password, ...dataToSend } = data;
+
+      await MainAPI.createNewNoAuth("user", { ...dataToSend, Status: "true", Approved: "false", type: "owner" });
+  
+      // await MainAPI.createNewNoAuth("user", { ...data, Status: "true", Approved: "false", type: "owner" });
 
     } catch(error: any) {
       setAlert(error.message, "error");

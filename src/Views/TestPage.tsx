@@ -104,8 +104,8 @@ export default function MiniDrawer() {
             <div style={{ width: "100%", height: "65%", background: "white", marginBottom: "10px", borderRadius: "10px", padding: "10px", overflow: "auto" }}>
               <TableCom />
             </div>
-            <div style={{ width: "100%", height: "45%", background: "white", marginBottom: "10px", padding: '10px', borderRadius: "10px" }}>
-              <EarningSummaryChart />
+            <div style={{ width: "100%", height: "45%", background: "white", marginBottom: "10px",  padding: '10px',  borderRadius: "10px" , }}>
+              <EarningSummaryChart  />
             </div>
           </div>
 
