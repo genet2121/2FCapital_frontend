@@ -74,26 +74,7 @@ const Example = () => {
       sorting, 
     ],
     queryFn: async () => {
-      // const fetchURL = new URL(
-      //   '/api/data',
-      //   process.env.NODE_ENV === 'production'
-      //     ? 'https://www.material-react-table.com'
-      //     : 'http://localhost:3000',
-      // );
-      
-
-      // fetchURL.searchParams.set(
-      //   'start',
-      //   `${pagination.pageIndex * pagination.pageSize}`,
-      // );
-      // fetchURL.searchParams.set('size', `${pagination.pageSize}`);
-      // fetchURL.searchParams.set('filters', JSON.stringify(columnFilters ?? []));
-      // fetchURL.searchParams.set('globalFilter', globalFilter ?? '');
-      // fetchURL.searchParams.set('sorting', JSON.stringify(sorting ?? []));
-
-      // const response = await fetch(fetchURL.href);
-      // const json = (await response.json()) as BookApiResponse;
-      // return json;
+     
 
       let condition: any = {};
       let sort: any = {};

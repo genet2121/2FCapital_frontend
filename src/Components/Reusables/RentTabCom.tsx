@@ -8,10 +8,11 @@ import {
   type MRT_PaginationState,
   type MRT_SortingState,
 } from 'material-react-table';
-import { IconButton, Tooltip, Switch, Button, Typography, Dialog, DialogContent, TextField } from '@mui/material';
+import {Tooltip, Typography, Dialog, DialogContent, TextField, IconButton } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import DeleteIcon from '@mui/icons-material/Delete';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+
+import EditIcon from '@mui/icons-material/Edit';
+
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {
 
@@ -21,6 +22,7 @@ import React from 'react';
 import MainAPI from '../../APIs/MainAPI';
 import AuthContext from '../../Contexts/AuthContext';
 import AlertContext from '../../Contexts/AlertContext';
+import { useNavigate } from 'react-router-dom';
 const dummyData: Book[] = [];
 type UserApiResponse = {
     data: Array<Book>;
@@ -48,6 +50,7 @@ const RenTableCom = () => {
   const {cookies} = useContext(AuthContext);
   const {setAlert} = useContext(AlertContext);
 
+  const navigate = useNavigate();
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [sorting, setSorting] = useState<MRT_SortingState>([]);
@@ -90,7 +93,7 @@ const RenTableCom = () => {
         sort[srt.id] = (srt.desc ? "desc" : "asc");
       });
 
-      const response = await MainAPI.getAll(cookies.login_token, "bookupload", 1, 10, {condition, sort});
+      const response = await MainAPI.getAll(cookies.login_token, "rent", 1, 10, {condition, sort});
       return {
         data: response.Items,
         meta: {
@@ -115,12 +118,12 @@ const RenTableCom = () => {
       {
         accessorKey: 'id',
         header: 'No',
-        size: 50,
+        size: 20,
       },
       {
         accessorKey: 'quantity',
         header: 'Quantity',
-     
+        size: 20,
       },
       {
         accessorKey: 'owner.name',
@@ -142,88 +145,73 @@ const RenTableCom = () => {
       },
       
       {
-        accessorKey: 'book.category',
+        accessorKey: 'bookUploads.book.category',
         header: 'category',
       },
       {
-        accessorKey: 'book.name',
+        accessorKey: 'bookUploads.book.name',
         header: 'Book Name',
       },
-     
-    
-    {
+      {
         accessorKey: 'status',
         header: 'Status',
         Cell: ({ cell, row }) => {
           const value = cell.getValue() as string;
-          const isChecked = value === 'true';
-          console.log(row.original)
-          const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-            const newStatus = event.target.checked ? 'true' : 'false';
-            try {
-              await MainAPI.update(cookies.login_token, "bookupload", {
-                id: row.original.id,
-                status: newStatus,
-                quantity: row.original.quantity,
-                price: row.original.price,
-                book_id: row.original.book_id,
-                book_cover: row.original.book_cover,
-                additionalAnswer: row.original.additionalAnswer,
-                owner_id: row.original.owner_id
-              });
-      
-             
-              row.original.Status  = newStatus;
-      
-              
-              refetch();
-                // window.location.reload();
-              
-            } catch (error: any) {
-              setAlert(error.message, "error");
-            }
-          };
+          const isReturned = value === 'returned';
+          
       
           return (
-            <div style={{ display: 'flex', alignItems: 'center', borderRadius:'15px', background:'#0080001A' }}>
+            <div style={{ display: 'flex', alignItems: 'center', borderRadius: '15px', background: isReturned ? '#0080001A' : '#FFA5001A', padding: '5px 10px' }}>
               <CheckCircleIcon
                 sx={{
-                  color: isChecked ? 'green' : 'grey',
+                  color: isReturned ? 'green' : 'grey',
                   marginRight: 1,
                   marginLeft: 1,
                 }}
               />
               <Typography
                 sx={{
-                  color: isChecked ? 'green' : 'grey',
-                  marginRight: 1,
+                  color: isReturned ? 'green' : 'orange',
                   fontWeight: 'bold',
                 }}
               >
-                {isChecked ? 'Active' : 'Inactive'}
+                {isReturned ? 'Returned' : 'Rented'}
               </Typography>
-              <Switch
-                checked={isChecked}
-                onChange={handleChange}
-                color="success"
-                sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked': {
-                    color: 'green',
-                  },
-                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                    backgroundColor: 'green',
-                  },
-                }}
-              />
             </div>
           );
         },
-      }
+      },
+      {
+        accessorKey: 'actions',
+        header: 'Action',
+        Cell: ({ cell, row }) => {
+            const action = cell.getValue();
+            const [open, setOpen] = React.useState(false);
+  
+          
+  
+            const handleEditClick = async () => {
+             navigate(`/new_rent?rent_id=${row.original.id}`)
+              
+            };
+           
+  
+          
+
+            return(
+                <div>
+                <IconButton style={{color: 'black'}}  onClick={handleEditClick}>
+                  <EditIcon />
+                </IconButton>
+               
+              </div>
+            );
+           
+        }
       
+      },
       
     
-      
-      
     ],
     []
   );

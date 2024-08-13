@@ -45,7 +45,7 @@ const AvailableBooks = () => {
           <div key={book.id} style={{ width: "24%", background: "white", padding: "10px", marginRight: "10px", marginBottom: "10px", borderRadius: "8px" }}>
             <img src={`${props.baseURL}file/${book.book_cover}`} alt="cover" style={{ width: "100%", height: "auto", marginBottom: "5px" }} />
             <h5 style={{ fontSize: "20px", fontWeight: "bold", fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", margin: 0, marginBottom: "5px" }}>
-              {book.title}
+              {book.book.name}
             </h5>
             <span style={{ fontSize: "12px", fontWeight: "normal", fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", margin: 0, marginBottom: "5px" }}>
               Author: {book.book.author}

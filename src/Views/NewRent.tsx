@@ -108,7 +108,7 @@ function NewRent() {
   const fetchSelectedBook = async (bk_id: number) => {
     try {
       const response = await MainAPI.getSingle(cookies.login_token, 'bookupload', bk_id);
-      setAllBooks(response);
+      setSelectedBook(response);
     } catch (error: any) {
       setAlert(error.message, "error");
     }
