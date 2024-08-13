@@ -6,11 +6,26 @@ import AlertContext from '../Contexts/AlertContext';
 import PieChartWithCenterLabel from '../Components/PieChart';
 import EarningSummaryChart from '../Components/Reusables/LineGraph';
 import SouthIcon from '@mui/icons-material/South';
+import MainAPI from '../APIs/MainAPI';
+import AuthContext from '../Contexts/AuthContext';
 export default function MiniDrawer() {
 
   const { setAlert, setWaiting, setMenu, menu } = useContext(AlertContext);
+  const { cookies } = useContext(AuthContext);
 
   const [open, setOpen] = React.useState(false);
+
+  const loadMoneyData = async () => {
+
+    let now = new Date();
+    let this_month_start = Math.floor(Date.parse(`${now.getFullYear()}-${now.getMonth() + 1}-1 00:00:00`)/1000)
+    let this_month_end = Math.floor(Date.parse(`${now.getFullYear() + ((now.getMonth() + 1) < 12 ? 0 : 1)}-${(now.getMonth() + 1) < 12 ? (now.getMonth() + 1) : 1}-1 00:00:00`)/1000);
+    let current_month = await MainAPI.getAll(cookies.login_token, "rent", 1, 1000, {
+      condition: {
+
+      }
+    })
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>

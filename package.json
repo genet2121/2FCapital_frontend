@@ -22,6 +22,7 @@
     "@types/react-chartjs-2": "^2.5.7",
     "@types/react-dom": "^18.2.23",
     "@types/react-router-dom": "^5.3.3",
+    "2f-capital-challenge": "file:",
     "axios": "^1.6.8",
     "chart.js": "^4.4.2",
     "dayjs": "^1.11.12",

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { TextField, MenuItem, Button, Box, Typography, FormControl, InputLabel, Select, SelectChangeEvent, Hidden, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
@@ -8,6 +8,7 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import AlertContext from '../Contexts/AlertContext';
 import MainAPI from '../APIs/MainAPI';
 import AuthContext from '../Contexts/AuthContext';
+import { useSearchParams } from 'react-router-dom';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -20,73 +21,158 @@ const MenuProps = {
   },
 };
 
-const names = [
-  'Email',
-  'Phone Number',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Kelly Snyder',
-];
-const books = [
-  { id: 1, name: 'Book 1' },
-  { id: 2, name: 'Book 2' },
-];
-
 function NewRent() {
 
   const {setAlert, setWaiting} = useContext(AlertContext);
   const {cookies} = useContext(AuthContext);
 
-  const [selectedBook, setSelectedBook] = useState(null);
-  const [bookQuantity, setBookQuantity] = useState(0);
-  const [rentalPrice, setRentalPrice] = useState(0);
+  const [queryParams, setQueryParams] = useSearchParams();
+
+  const [selectedBook, setSelectedBook] = useState<any>(null);
   const [allBooks, setAllBooks] = useState<any[]>([]);
-  const [answers, setAnswers] = useState([]);
+  const [currentRent, setCurrentRent] = useState<any>(null);
+  const [answers, setAnswers] = useState<any>({}); // {id: 3, answer: ""}
+  const [inputs, setInputs] = useState<{book_id: number, quantity: number, price: number, status: string}>({
+    book_id: 0,
+    quantity: 0,
+    price: 0,
+    status: "rented"
+  });
 
-  const handleBookQuantityChange = (event: any) => {
-    setBookQuantity(event.target.value);
-  };
+  useEffect(() => {
+    fetchBooks();
+    loadCurrentRent();
+  }, [])
 
-  const handleRentalPriceChange = (event: any) => {
-    setRentalPrice(event.target.value);
-  };
+  useEffect(() => {
+    if(selectedBook) {
+      setInputs({...inputs, price: inputs.quantity * selectedBook.price});
+      selectedBook.questionaries.forEach((qnr: any) => {
+        let element: any = document.getElementById(`questionary_${qnr.id}`);
+        if(element) {
+          element.value = answers[qnr.id] ?? "";
+        }
+      })
+    }
+  }, [selectedBook]);
 
-  const handleSubmit = (event: any) => {
-    event.preventDefault();
-    // Handle form submission logic
-  };
+  useEffect(() => {
+    if(currentRent) {
+      onBookChange(currentRent.upload_id);
+    }
+  }, [currentRent]);
 
-  const loadAllBooks = async () => {
-    setTimeout(() => {setWaiting(true)}, 10);
+  const loadCurrentRent = async () => {
+    let id = queryParams.get("rent_id");
+    if(!id) {
+      return;
+    }
+
     try {
 
-      let response = await MainAPI.getAll(cookies.login_token, "bookupload", 1, 10, {condition: {
-        quantity: { gt: 0 }
-      }});
-      setAllBooks(response.Items);
+      const response = await MainAPI.getSingle(cookies.login_token, 'rent', parseInt(id));
+      setInputs({
+        book_id: response.upload_id,
+        quantity: response.quantity,
+        price: response.total_price,
+        status: response.status,
+      });
+      setCurrentRent(response);
+      let temp_answers: any = {};
+      response.additionalAnswer.forEach((qnr: any) => {
+        temp_answers[qnr.question_id] = qnr.answer;
+      })
+      setAnswers(temp_answers);
 
-    } catch(error: any) {
+      console.log(" question name ", response.additionalAnswer);
+
+    } catch (error: any) {
       setAlert(error.message, "error");
     }
-    setWaiting(false);
   }
 
-  const [personName, setPersonName] = React.useState<string[]>([]);
-
-  const handleChange = (event: SelectChangeEvent<typeof personName>) => {
-    const {
-      target: { value },
-    } = event;
-    setPersonName(
-      // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value,
-    );
+  const fetchBooks = async () => {
+    try {
+      const response = await MainAPI.getAll(cookies.login_token, 'bookupload', 1, 10, {
+        condition: {
+          quantity: { gt: 0 },
+          status: "true"
+        }
+      });
+      setAllBooks(response.Items);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
   };
+
+  const handleInputChange = (name: string, value: any) => {
+
+    let temp = {...inputs, [name]: value};
+    if(selectedBook) {
+      temp.price = temp.quantity * selectedBook.price;
+    }
+    setInputs(inp => ({...temp}));
+    if(name == "book_id") {
+      onBookChange(value);
+    }
+  };
+
+  const handleAnswersInputChange = (name: string, value: any) => {
+    let temp = {...answers, [name]: value};
+    console.log(answers);
+    setAnswers((inp: any) => ({...temp}));
+  };
+
+  const onBookChange = (book_id: number) => {
+
+    let found_book = allBooks.find(bk => bk.id == book_id);
+    console.log("found book ", found_book);
+    setSelectedBook(found_book);
+
+  };
+
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
+    try {
+
+      let temp_answers: any = [];
+      if(inputs.book_id < 1 || inputs.price <= 0 || inputs.quantity < 1) {
+        throw new Error("some properties should be filled!");
+      }
+
+      selectedBook.questionaries.forEach((qnr: any) => {
+        console.log(qnr.name, answers[qnr.id]);
+        if(answers[qnr.id] == "" || !answers[qnr.id]) {
+          throw new Error(`questionary ${qnr.question} should not be empty`);
+        } else {
+          temp_answers.push({
+            id: qnr.id,
+            answer: answers[qnr.id]
+          })
+        }
+      });
+
+      let new_rent: any = {
+        quantity: parseInt(`${inputs.quantity}`),
+        upload_id: selectedBook.id,
+        total_price: parseFloat(`${inputs.price}`),
+        status: inputs.status,
+        answers: temp_answers,
+      };
+
+      if(!currentRent) {
+        await MainAPI.createNew(cookies.login_token, 'rent', new_rent);
+        setAlert("rent upload successful!", "success");
+      } else {
+        await MainAPI.update(cookies.login_token, 'rent', {...new_rent, id: currentRent.id});
+        setAlert("rent update successful!", "success");
+      }
+
+    } catch (error: any) {
+      setAlert(error.message, "error");
+    }
+  };
+
 
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%", padding: "0 10px 0 0", height: "100%", position: "relative" }}>
@@ -126,8 +212,8 @@ function NewRent() {
                     <Select
                         labelId="demo-simple-select-filled-label"
                         id="demo-simple-select-filled"
-                        value={selectedBook}
-                        onChange={() => {}}
+                        value={inputs.book_id}
+                        onChange={(event: any) => {handleInputChange("book_id", event.target.value)}}
                         sx={{ boxShadow: 2 }}
                     >
                         <MenuItem disabled value="">
@@ -142,56 +228,60 @@ function NewRent() {
                         }
                     </Select>
                     </FormControl>
-                    
-                    {/* <FormControl fullWidth>
-                      <InputLabel id="demo-multiple-checkbox-label">questioner's</InputLabel>
-                      <Select
-                          labelId="demo-multiple-checkbox-label"
-                          id="demo-multiple-checkbox"
-                          multiple
-                          value={personName}
-                          onChange={handleChange}
-                          input={<OutlinedInput label="Tag" />}
-                          renderValue={(selected) => selected.join(', ')}
-                          MenuProps={MenuProps}
-                      >
-                          {names.map((name) => (
-                          <MenuItem key={name} value={name}>
-                              <Checkbox checked={personName.indexOf(name) > -1} />
-                              <ListItemText primary={name} />
-                          </MenuItem>
-                          ))}
-                      </Select>
-                    </FormControl> */}
+
                 </Box>
             
                 <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
                     <TextField
                       label="Book Quantity"
-                      value={bookQuantity}
-                      onChange={handleBookQuantityChange}
+                      value={inputs.quantity}
+                      onChange={(event: any) => {handleInputChange("quantity", event.target.value)}}
                       fullWidth
                     />
                     <TextField
                       label="Total Price"
-                      value={rentalPrice}
+                      value={inputs.price}
                       fullWidth
                       disabled={true}
+                      onChange={(event: any) => {handleInputChange("price", event.target.value)}}
                     />
                 </Box>
+
+                <FormControl variant="filled" size="medium" fullWidth>
+                  <InputLabel id="demo-simple-select-filled-label">
+                    Status
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-filled-label"
+                    id="demo-simple-select-filled"
+                    value={inputs.status}
+                    onChange={(event: any) => {handleInputChange("status", event.target.value)}}
+                    sx={{ boxShadow: 2 }}
+                    disabled={currentRent == null}
+                  >
+                    <MenuItem disabled value="">
+                      <em>Select Status</em>
+                    </MenuItem>
+                      <MenuItem value={"rented"}> Rented </MenuItem>
+                      <MenuItem value="returned">Returned</MenuItem>
+                  </Select>
+                </FormControl>
 
                 <hr style={{background: "black", color: "black", width: "100%"}}/>
 
                 {
-
-                  (
-                    <TextField
-                      label="Total Price"
-                      value={rentalPrice}
-                      onChange={handleRentalPriceChange}
-                      fullWidth
-                    />
-                  )
+                  selectedBook ? selectedBook.questionaries.map((qnr: any) =>
+                    (
+                      <TextField
+                        key={`questionary_${qnr.id}`}
+                        id={`questionary_${qnr.id}`}
+                        label={qnr.question}
+                        value={answers[qnr.name]}
+                        onChange={(event: any) => {handleAnswersInputChange(qnr.id, event.target.value)}}
+                        fullWidth
+                      />
+                    )
+                  ) : (<></>)
                 }
                 
                 <Button
@@ -199,6 +289,7 @@ function NewRent() {
                     variant="contained"
                     size="large"
                     sx={{ mt: 2, width: '50%', borderRadius: '10px', background: '#00ABFF', height: '54px' }}
+                    onClick={handleSubmit}
                 >
                     Rent
                 </Button>

@@ -131,7 +131,7 @@ class MainAPI {
     }
 
     public static async update(token: string, tableName: string, new_data: any): Promise<any> {
-        return await Authorized(token).bodyRequest("put", "crud/update", {table: tableName, data: new_data});
+        return await Authorized(token).bodyRequest("put", "crud/update", {tableName, data: new_data});
     }
 
     public static async forSelectBox(token: string, table: string, as_id: string, as_label: string) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { TextField, MenuItem, Button, Box, Typography, FormControl, InputLabel, Select, SelectChangeEvent, Hidden, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
@@ -8,7 +8,9 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import MainAPI from '../../APIs/MainAPI';
 // import Cookies from 'js-cookie';
 import { Category } from '../../Intefaces/Category';
-import { Cookies, useCookies } from 'react-cookie';
+import AuthContext from '../../Contexts/AuthContext';
+import AlertContext from '../../Contexts/AlertContext';
+import { useSearchParams } from 'react-router-dom';
 
 
 const ITEM_HEIGHT = 48;
@@ -22,65 +24,87 @@ const MenuProps = {
   },
 };
 
-const names = [
-  'Email',
-  'Phone Number',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Kelly Snyder',
-];
-const books = [
-  { id: 1, name: 'Book 1' },
-  { id: 2, name: 'Book 2' },
-];
-
 const BookUploadForm = () => {
-  const [selectedBook, setSelectedBook] = useState('');
-  const [bookQuantity, setBookQuantity] = useState('');
-  const [rentalPrice, setRentalPrice] = useState('');
+
+  const {cookies} = useContext(AuthContext);
+  const {setAlert} = useContext(AlertContext);
+
+  const [queryParams, setQueryParams] = useSearchParams();
+
+  const [selectedBook, setSelectedBook] = useState(0);
+  const [bookQuantity, setBookQuantity] = useState(0);
+  const [rentalPrice, setRentalPrice] = useState(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-
-  
   // State for dialog form
   const [bookName, setBookName] = useState('');
   const [authorName, setAuthorName] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
-  const [cookies] = useCookies(['login_token']);
-  const [loggedUser, setLoggedUser] = useState(null);
+  const [allBooks, setAllBooks] = useState<any[]>([]);
+  const [questionaries, setQuestionaries] = useState<any[]>([]);
+  const [selectedQuestions, setSelectedQuestions] = useState<any[]>([]);
+  const [questionName, setQuestionName] = React.useState<string[]>([]);
+  const [coverId, setCoverId] = React.useState<any>(null);
+  const [status, setStatus] = React.useState<string>("true");
+  const [bookUploadId, setBookUploadId] = React.useState<number>(0);
+  const [currentUpload, setCurrentUpload] = React.useState<any>(null);
+
 
 
   useEffect(() => {
-
-    if (isDialogOpen) {
-      fetchCategories();
-
-    }
+    fetchCategories();
     fetchBooks();
-  }, [isDialogOpen]);
+    fetchQuestionaries();
+    loadBookUpload();
+  }, [queryParams]);
+
+  const loadBookUpload = async () => {
+    let id = queryParams.get("book_upload_id");
+    if(!id) {
+      return;
+    }
+    setBookUploadId(parseInt(id));
+    try {
+
+      const response = await MainAPI.getSingle(cookies.login_token, 'bookupload', parseInt(id));
+      setBookQuantity(response.quantity);
+      setSelectedBook(response.book_id);
+      setRentalPrice(response.price);
+      // setCoverId(response.book_cover);
+      setQuestionName(response.questionaries.map((qnr: any) => qnr.id));
+      setSelectedQuestions(response.questionaries);
+      setCurrentUpload(response);
+
+      console.log(" question name ", response.questionaries);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  }
 
   const fetchCategories = async () => {
     try {
       const token = cookies.login_token;
       const condition = { type: 'book_category' };
-      const response = await MainAPI.getAll(token, 'choice', 1, 10, condition);
+      const response = await MainAPI.getAll(token, 'choice', 1, 10, {condition});
       setCategories(response.Items);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
   };
+
   const fetchBooks = async () => {
     try {
-      const token = cookies.login_token;
-      const condition = { type: 'book_category' };
-      const response = await MainAPI.getAll(token, 'book', 1, 10, condition);
-      setCategories(response.Items);
+      const response = await MainAPI.getAll(cookies.login_token, 'book', 1, 10, {});
+      setAllBooks(response.Items);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchQuestionaries = async () => {
+    try {
+      const response = await MainAPI.getAll(cookies.login_token, 'basequestionary', 1, 10, {});
+      setQuestionaries(response.Items);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -94,7 +118,7 @@ const BookUploadForm = () => {
     if (event.target.value === 'Add') {
       setIsDialogOpen(true);
     } else {
-      setSelectedBook(event.target.value);
+      setSelectedBook(parseInt(event.target.value));
     }
   };
 
@@ -104,44 +128,92 @@ const BookUploadForm = () => {
   const handleAddBook = async () => {
     try {
       const token = cookies.login_token;
-      const ownerId = 2; 
       const newBook = {
         name: bookName,
         author: authorName,
-        category: selectedCategory,
-        owner_id: ownerId,
+        category: selectedCategory
       };
       await MainAPI.createNew(token, 'book', newBook);
       // Optionally, handle successful response here
       handleDialogClose(); // Close the dialog
-    } catch (error) {
-      console.error('Error adding new book:', error);
+      fetchBooks();
+    } catch (error: any) {
+      setAlert(error.message, "error");
     }
   };
   const handleBookQuantityChange = (event: any) => {
-    setBookQuantity(event.target.value);
+    setBookQuantity(parseInt(event.target.value) ?? 0);
   };
 
   const handleRentalPriceChange = (event: any) => {
-    setRentalPrice(event.target.value);
+    setRentalPrice(parseFloat(event.target.value) ?? 0);
   };
 
-  const handleSubmit = (event: any) => {
+  const handleStatusChange = (event: any) => {
+    setStatus(event.target.value);
+  };
+
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
-    // Handle form submission logic
+    try {
+
+      if(bookQuantity < 1 || selectedBook < 1 || rentalPrice <= 0 || (!coverId && !currentUpload)) {
+        throw new Error("some properties should be filled!");
+      }
+
+      let new_upload: any = {
+        quantity: bookQuantity,
+        book_id: selectedBook,
+        price: rentalPrice,
+        status,
+        questionaries: questionName,
+      };
+
+      if(coverId) {
+        let file_id = await handleCoverUpload();
+        new_upload.book_cover = file_id;
+      } else {
+        new_upload.book_cover = currentUpload.book_cover;
+      }
+
+      if(bookUploadId == 0) {
+        await MainAPI.createNew(cookies.login_token, 'bookupload', new_upload);
+        setAlert("book upload successful!", "success");
+      } else {
+        await MainAPI.update(cookies.login_token, 'bookupload', {...new_upload, id: bookUploadId});
+        setAlert("book update successful!", "success");
+      }
+
+    } catch (error: any) {
+      setAlert(error.message, "error");
+    }
   };
 
-  const [personName, setPersonName] = React.useState<string[]>([]);
-
-  const handleChange = (event: SelectChangeEvent<typeof personName>) => {
-    const {
-      target: { value },
-    } = event;
-    setPersonName(
-      // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value,
-    );
+  const handleChange = (event: SelectChangeEvent<string[]>) => {
+    const { target: { value } } = event;
+    console.log(" selected ", value);
+    let selections = typeof value == "string" ? value.split(", ") : value;
+    let found_questionaries = questionaries.filter(qnr => selections.includes(qnr.id));
+    setQuestionName(selections);
+    setSelectedQuestions(found_questionaries);
   };
+
+  const handleCoverUpload = async () => {
+
+    try {
+      let response = await MainAPI.addAttachment(cookies.login_token, "bookupload", 0, {
+        file: coverId,
+        name: "book cover"
+      });
+      // setCoverId(parseInt(response.id));
+      return parseInt(response.id);
+
+    } catch(error: any) {
+      setAlert(error.message, "error");
+      return 0;
+    }
+
+  }
 
   return (
     <Box
@@ -177,10 +249,10 @@ const BookUploadForm = () => {
             sx={{ boxShadow: 2 }}
           >
             <MenuItem disabled value="">
-              <em>Search...</em>
+              <em>Selecct Book</em>
             </MenuItem>
-            {books.map((book) => (
-              <MenuItem key={book.id} value={book.name}>
+            {allBooks.map((book) => (
+              <MenuItem key={book.id} value={book.id}>
                 {book.name}
               </MenuItem>
             ))}
@@ -189,21 +261,21 @@ const BookUploadForm = () => {
         </FormControl>
         
         <FormControl fullWidth>
-          <InputLabel id="demo-multiple-checkbox-label">questioner's</InputLabel>
+          <InputLabel id="demo-multiple-checkbox-label">Questioneries</InputLabel>
           <Select
             labelId="demo-multiple-checkbox-label"
             id="demo-multiple-checkbox"
             multiple
-            value={personName}
+            value={questionName}
             onChange={handleChange}
             input={<OutlinedInput label="Tag" />}
-            renderValue={(selected) => selected.join(', ')}
+            renderValue={(selected) => { return selectedQuestions.map(sq => sq.question).join(", ")}}
             MenuProps={MenuProps}
           >
-            {names.map((name) => (
-              <MenuItem key={name} value={name}>
-                <Checkbox checked={personName.indexOf(name) > -1} />
-                <ListItemText primary={name} />
+            {questionaries.map((questionary) => (
+              <MenuItem key={questionary.id} value={questionary.id}>
+                <Checkbox checked={questionName.includes(questionary.id)} />
+                <ListItemText primary={questionary.question} />
               </MenuItem>
             ))}
           </Select>
@@ -224,6 +296,28 @@ const BookUploadForm = () => {
           fullWidth
         />
       </Box>
+
+      <FormControl variant="filled" size="medium" fullWidth>
+        <InputLabel id="demo-simple-select-filled-label">
+          Status
+        </InputLabel>
+        <Select
+          labelId="demo-simple-select-filled-label"
+          id="demo-simple-select-filled"
+          value={status}
+          onChange={handleStatusChange}
+          sx={{ boxShadow: 2 }}
+          disabled={bookUploadId == 0}
+        >
+          <MenuItem disabled value="">
+            <em>Select Status</em>
+          </MenuItem>
+            <MenuItem value={"true"}>
+              Active
+            </MenuItem>
+            <MenuItem value="false">Inactive</MenuItem>
+        </Select>
+      </FormControl>
   
       <Button
         component="label"
@@ -231,7 +325,7 @@ const BookUploadForm = () => {
         fullWidth
       >
         Upload Book Cover
-        <input type="file" hidden />
+        <input type="file" hidden id="book_cover_input" onChange={(event: any) => {setCoverId(event.target.files[0])}} />
       </Button>
       
       <Button
@@ -242,6 +336,7 @@ const BookUploadForm = () => {
       >
         Submit
       </Button>
+
       <Dialog open={isDialogOpen} onClose={handleDialogClose}>
         <DialogTitle sx={{ textAlign: 'center' }}>Add a New Book</DialogTitle>
         <DialogContent>
