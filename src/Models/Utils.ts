@@ -1,21 +1,7 @@
-import UserRoles from "../Enums/UserRoles";
-import UserState from "../Enums/UserState";
+// import UserRoles from "../Enums/UserRoles";
+// import UserState from "../Enums/UserState";
 
 const Utils = {
-
-    getRole: (role: UserRoles) => {
-        let roles = {
-            [UserRoles.RECEPTION]: "Reception",
-            [UserRoles.ADMIN]: "Admin",
-            [UserRoles.MAINTAINER]: "Technician",
-            [UserRoles.CUSTOMER]: "Customer"
-        };
-        return roles[role];
-    },
-
-    getUserState: (state: UserState) => {
-        return (state == UserState.ACTIVE) ? "Active" : "Inactive";
-    },
 
     convertSecondsToDate(seconds: number) {
         const date = new Date(seconds * 1000);

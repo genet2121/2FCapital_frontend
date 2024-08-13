@@ -1,23 +1,8 @@
 
-import FieldTypes from "../Enums/FiedTypes";
-import Operators from "../Enums/Operators";
 import IPagination from "../Intefaces/IPagination";
-import Utils from "../Models/Utils";
 import { authFileRequest, Authorized, normal } from "./api";
 
 class MainAPI {
-
-    private static valueMapper(new_value: {operator: string, value: any, type: string}) {
-        
-        if(new_value.type == FieldTypes.NUMBER || new_value.type == FieldTypes.REFERENCE) {
-            new_value.value = Number.isInteger(new_value.value) ? parseInt(new_value.value) : parseFloat(new_value.value);
-        } else if((new_value.type == FieldTypes.DATE || new_value.type == FieldTypes.DATETIME)) {
-            new_value.value = new Date(new_value.value).toISOString();
-        }
-
-        return new_value;
-
-    }
 
     public static async getAll(token: string, tableName: string, pageNumber: number, pageSize: number, condition?: any): Promise<IPagination<any>> {
 
@@ -52,14 +37,11 @@ class MainAPI {
     public static async loadAttachments(token: string, table: string, record_id: string): Promise<IPagination<any>> {
 
         try {
-            // let query = condition ? `?${Utils.objectToQueryString(condition)}` : "";
-            // let query = "";
             return await Authorized(token).bodyRequest("post", `crud/getlist/attachment/1/100`, {
-                "record": {operator: Operators.IS, type: FieldTypes.NUMBER, value: parseInt(record_id)},
-                "table": {operator: Operators.IS, type: FieldTypes.TEXT, value: table}
+                "record": { eq: parseInt(record_id) },
+                "table": { eq: table }
             });
         } catch (error: any) {
-            // console.log(error.message);
             return {
                 Items: [],
                 PageNumber: 1,

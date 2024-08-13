@@ -5,7 +5,7 @@ import AlertContext from '../Contexts/AlertContext';
 import { Outlet } from 'react-router-dom';
 export default function MainScreen() {
 
-  const { setAlert, setWaiting, setMenu, menu } = useContext(AlertContext);
+  const {  menu } = useContext(AlertContext);
 
   const [open, setOpen] = React.useState(false);
 

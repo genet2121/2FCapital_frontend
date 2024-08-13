@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
-import { isMobile } from "react-device-detect";
 import AlertContext from "../Contexts/AlertContext";
 import { useNavigate } from "react-router-dom";
 import { Login } from "../APIs/AuthAPI";
 import AuthContext from "../Contexts/AuthContext";
-import { Box, TextField, Button, Checkbox, FormControlLabel, Link, Typography, Grid } from '@mui/material';
+import Authorization from "../Models/Authorization";
+import {  TextField, Button, Checkbox, FormControlLabel, Link, Typography, Grid } from '@mui/material';
 function LoginPage() {
 
-    const { setAlert, setWaiting, setMenu, menu } = useContext(AlertContext);
-    const { setLoggedUser, setLoggedIn, setCookie } = useContext(AuthContext);
+    const { setAlert, setWaiting} = useContext(AlertContext);
+    const { setLoggedUser, setLoggedIn, setCookie, setAbility } = useContext(AuthContext);
 
     const [fields, setFields] = useState<{ Email: string, Password: string }>({
         Email: "",
@@ -43,9 +43,10 @@ function LoginPage() {
             setLoggedUser(response);
             setCookie("login_token", response.Token, { path: "/", maxAge: 86400 });
             setLoggedIn(true);
-
+            setTimeout(() => {window.location.reload();}, 100)
+            setAbility(Authorization(response.data));
             setWaiting(false);
-            setAlert("working", "info");
+        
             navigate("/");
         } catch (error: any) {
             setWaiting(false);

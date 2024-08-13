@@ -1,15 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { IconButton } from "@mui/material";
-import { isMobile } from "react-device-detect";
 import AlertContext from "../../Contexts/AlertContext";
 import { Link, useNavigate } from "react-router-dom";
-import INavigation from "../../Intefaces/INavigation";
-import SideBarNavigation from "../../Views/SideBarNavigation";
 import AuthContext from "../../Contexts/AuthContext";
-import NavigationTypes from "../../Enums/NavigationTypes";
 import LogoutIcon from '@mui/icons-material/Logout';
-import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
 import SidebarItem from './SidebarItem';
 import Divider from '@mui/material/Divider';
@@ -21,6 +14,7 @@ import QueueIcon from '@mui/icons-material/Queue';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PostAddIcon from '@mui/icons-material/PostAdd';
+import { Can } from "../../Contexts/AbilityContext";
 
 function SideBarComponent() {
 
@@ -47,7 +41,7 @@ function SideBarComponent() {
     // }, [loggedUser]);
 
     const toggleSidebar = () => {
-        setStyle((st) => ({...st, width: (menu ? "max-content" : "19%")}))
+        setStyle((st) => ({ ...st, width: (menu ? "max-content" : "19%") }))
         setMenu(!menu);
     }
 
@@ -63,30 +57,42 @@ function SideBarComponent() {
 
 
     return (
-        <div style={{...style, flexDirection: "column"}}>
+        <div style={{ ...style, flexDirection: "column" }}>
 
-            <div style={{width: "100%", height: "max-content"}}>
+            <div style={{ width: "100%", height: "max-content" }}>
 
                 <div style={{ display: "flex", alignItems: "center", width: "max-width", height: "max-height", cursor: "pointer" }}>
                     <MenuIcon
                         sx={menu ? { marginRight: "10px", fontSize: "30px" } : { margin: "0 auto", fontSize: "30px" }}
                         onClick={toggleSidebar}
                     />
-                    <img src='/images/Sidebar_logo.png' style={{display: (menu ? "" : "none"), width: "35px", marginRight: "10px"}} />
-                    <h6 style={{display: (menu ? "" : "none"), fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", fontWeight: "normal", fontSize: "17px", margin: 0, color: "#00ABFF" }}>Book Rent</h6>
+                    <img src='/images/Sidebar_logo.png' style={{ display: (menu ? "" : "none"), width: "35px", marginRight: "10px" }} />
+                    <h6 style={{ display: (menu ? "" : "none"), fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", fontWeight: "normal", fontSize: "17px", margin: 0, color: "#00ABFF" }}>Book Rent</h6>
                 </div>
-                <Divider sx={{background: "white", margin: "10px 0"}} />
+                <Divider sx={{ background: "white", margin: "10px 0" }} />
 
-                <SidebarItem Icon={SpaceDashboardIcon} open={menu} text={"Dashboard"} method={() => {navigate("/")}} />
-                <SidebarItem Icon={BookIcon} open={menu} text={"Books"} method={() => {navigate("/book")}} />
-                <SidebarItem Icon={BookIcon} open={menu} text={"Avalable Books"} method={() => {navigate("/available_books")}} />
-                <SidebarItem Icon={QueueIcon} open={menu} text={"Book Upload"} method={() => {navigate("/new_book")}} />
-                <SidebarItem Icon={PersonIcon} open={menu} text={"Owners"} method={() => {navigate("/owner")}} />
-                <SidebarItem Icon={LibraryBooksIcon} open={menu} text={"Rent List"} method={() => {navigate("/rents")}} />
-                <SidebarItem Icon={PostAddIcon} open={menu} text={"New Rent"} method={() => {navigate("/new_rent")}} />
-                <Divider sx={{background: "white", margin: "10px 0"}} />
-                <SidebarItem Icon={NotificationsNoneIcon} open={menu} text={"Notifications"} method={() => {}} />
-                <SidebarItem Icon={SettingsIcon} open={menu} text={"Settings"} method={() => {}} />
+                    <SidebarItem Icon={SpaceDashboardIcon} open={menu} text={"Dashboard"} method={() => { navigate("/") }} />
+                <Can I="read" a="bookupload" >
+                    <SidebarItem Icon={BookIcon} open={menu} text={"Books"} method={() => { navigate("/book") }} />
+                </Can>
+                <SidebarItem Icon={BookIcon} open={menu} text={"Avalable Books"} method={() => { navigate("/available_books") }} />
+
+                <Can I="create" a="bookupload" >
+                    <SidebarItem Icon={QueueIcon} open={menu} text={"Book Upload"} method={() => { navigate("/new_book") }} />
+                </Can>
+
+                <Can I="read" a="user" >
+                    <SidebarItem Icon={PersonIcon} open={menu} text={"Owners"} method={() => { navigate("/owner") }} />
+                </Can>
+                <Can I="read" a="rent" >
+                    <SidebarItem Icon={LibraryBooksIcon} open={menu} text={"Rent List"} method={() => { navigate("/rents") }} />
+                </Can>
+                <Can I="create" a="rent" >
+                    <SidebarItem Icon={PostAddIcon} open={menu} text={"New Rent"} method={() => { navigate("/new_rent") }} />
+                </Can>
+                <Divider sx={{ background: "white", margin: "10px 0" }} />
+                <SidebarItem Icon={NotificationsNoneIcon} open={menu} text={"Notifications"} method={() => { }} />
+                <SidebarItem Icon={SettingsIcon} open={menu} text={"Settings"} method={() => { }} />
 
             </div>
 
@@ -115,7 +121,7 @@ function SideBarComponent() {
                 }}
             >
                 <LogoutIcon sx={menu ? { marginRight: "10px", fontSize: "17px" } : { marginLeft: "-3px", fontSize: "17px" }} />
-                <h6 style={{display: (menu ? "" : "none"), fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", fontWeight: "normal", fontSize: "14px", margin: 0}}>Logout</h6>
+                <h6 style={{ display: (menu ? "" : "none"), fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", fontWeight: "normal", fontSize: "14px", margin: 0 }}>Logout</h6>
             </button>
 
         </div>

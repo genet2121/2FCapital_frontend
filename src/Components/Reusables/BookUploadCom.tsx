@@ -10,7 +10,8 @@ import MainAPI from '../../APIs/MainAPI';
 import { Category } from '../../Intefaces/Category';
 import AuthContext from '../../Contexts/AuthContext';
 import AlertContext from '../../Contexts/AlertContext';
-import { useSearchParams } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import SuccessDialog from './SucessDilog';
 
 
 const ITEM_HEIGHT = 48;
@@ -29,6 +30,7 @@ const BookUploadForm = () => {
   const {cookies} = useContext(AuthContext);
   const {setAlert} = useContext(AlertContext);
 
+  const navigate = useNavigate();
   const [queryParams, setQueryParams] = useSearchParams();
 
   const [selectedBook, setSelectedBook] = useState(0);
@@ -142,11 +144,11 @@ const BookUploadForm = () => {
     }
   };
   const handleBookQuantityChange = (event: any) => {
-    setBookQuantity(parseInt(event.target.value) ?? 0);
+    setBookQuantity(event.target.value);
   };
 
   const handleRentalPriceChange = (event: any) => {
-    setRentalPrice(parseFloat(event.target.value) ?? 0);
+    setRentalPrice(event.target.value);
   };
 
   const handleStatusChange = (event: any) => {
@@ -162,9 +164,9 @@ const BookUploadForm = () => {
       }
 
       let new_upload: any = {
-        quantity: bookQuantity,
+        quantity: parseFloat(`${bookQuantity}`) ?? 0,
         book_id: selectedBook,
-        price: rentalPrice,
+        price: parseFloat(`${rentalPrice}`) ?? 0,
         status,
         questionaries: questionName,
       };
@@ -183,6 +185,8 @@ const BookUploadForm = () => {
         await MainAPI.update(cookies.login_token, 'bookupload', {...new_upload, id: bookUploadId});
         setAlert("book update successful!", "success");
       }
+
+      navigate("/success");
 
     } catch (error: any) {
       setAlert(error.message, "error");
@@ -382,6 +386,7 @@ const BookUploadForm = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
     </Box>
   );
   

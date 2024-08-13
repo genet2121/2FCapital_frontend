@@ -27,8 +27,8 @@ function Authorization(user: AuthResult) {
         
         builder.can("create", "bookupload");
         builder.can("read", "bookupload");
-        builder.can("update", "bookupload");
-        builder.can("delete", "bookupload");
+        // builder.can("update", "bookupload");
+        // builder.can("delete", "bookupload");
 
         builder.can("create", "basequesionary");
         builder.can("read", "basequesionary");
@@ -53,9 +53,9 @@ function Authorization(user: AuthResult) {
     } else if(user.Roles.includes(Roles.Owner)) {
 
         builder.cannot("create", "user");
-        builder.can("read", "user");
-        builder.can("update", "user");
-        builder.cannot("delete", "user");
+        // builder.can("read", "user");
+        // builder.can("update", "user");
+        // builder.cannot("delete", "user");
         
         builder.cannot("create", "choice");
         builder.can("read", "choice");
@@ -63,12 +63,12 @@ function Authorization(user: AuthResult) {
         builder.cannot("delete", "choice");
         
         builder.can("create", "book");
-        builder.can("read", "book");
+        // builder.can("read", "book");
         builder.can("update", "book");
         builder.can("delete", "book");
         
         builder.can("create", "bookupload");
-        builder.can("read", "bookupload");
+        // builder.can("read", "bookupload");
         builder.can("update", "bookupload");
         builder.can("delete", "bookupload");
         

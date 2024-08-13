@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useContext } from 'react';
 import AlertContext from '../Contexts/AlertContext';
-
 import MainAPI from '../APIs/MainAPI';
 import AuthContext from '../Contexts/AuthContext';
 import { props } from '../APIs/api';
+import Typography from '@mui/material/Typography';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import Link from '@mui/material/Link';
 
 
 const AvailableBooks = () => {
   
   const { setAlert } = useContext(AlertContext);
-
+  const { loggedUser } = useContext(AuthContext);
   const [books, setBooks] = useState<any[]>([]);
   const {cookies} = useContext(AuthContext);
  
@@ -36,7 +38,22 @@ const AvailableBooks = () => {
     <div style={{ display: "flex", flexDirection: "column", width: "100%", padding: "0 10px", position: "relative", height: '100%' }}>
     {/* top nav */}
     <div style={{ width: "100%", height: "40px", background: "white", borderRadius: "10px", marginBottom: "10px", padding: '5px 20px', fontSize: '18px' }}>
-      Administrator/Available Books
+      
+      <Breadcrumbs aria-label="breadcrumb">
+          {
+            loggedUser.Roles.includes("admin") ? (
+              <Link underline="hover" color="inherit" href="/">
+                Administrator
+              </Link>
+            ) : (
+              <Link underline="hover" color="inherit" href="/">
+                Owner
+              </Link>
+            )
+          }
+        
+        <Typography color="text.primary">Available Books</Typography>
+      </Breadcrumbs>
     </div>
 
     <div style={{ width: "100%", overflowY: 'auto' }}>

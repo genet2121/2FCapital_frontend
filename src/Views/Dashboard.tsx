@@ -1,275 +1,145 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import AuthContext from "../Contexts/AuthContext";
-import Utils from "../Models/Utils";
-import { IconButton } from "@mui/material";
-import { Menu, PlayArrow } from "@mui/icons-material";
-import Chart from 'chart.js/auto';
-import AppShortcutIcon from '@mui/icons-material/AppShortcut';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import AlertContext from "../Contexts/AlertContext";
-import MainAPI from "../APIs/MainAPI";
-import Operators from "../Enums/Operators";
-import FieldTypes from "../Enums/FiedTypes";
-import OrderStatus from "../Enums/OrderStatus";
-import { useNavigate } from "react-router-dom";
+import * as React from 'react';
+import Typography from '@mui/material/Typography';
+import TableCom from '../Components/Reusables/TableCom';
+import { useContext, useEffect } from 'react';
+import AlertContext from '../Contexts/AlertContext';
+import PieChartWithCenterLabel from '../Components/PieChart';
+import EarningSummaryChart from '../Components/Reusables/LineGraph';
+import SouthIcon from '@mui/icons-material/South';
+import NorthIcon from '@mui/icons-material/North';
+import MainAPI from '../APIs/MainAPI';
+import AuthContext from '../Contexts/AuthContext';
+import Utils from '../Models/Utils';
+export default function MiniDrawer() {
 
-function Dashboard() {
+  const { setAlert, } = useContext(AlertContext);
+  const { cookies } = useContext(AuthContext);
 
-	const { setAlert, setWaiting, setMenu, menu } = useContext(AlertContext);
-	const {loggedUser, cookies, localData} = useContext(AuthContext);
-	const [balance, setBalance] = useState<Map<number, { tickets: any[], pay_in: number, pay_out: number }>>(new Map());
-	const [isAdmin, setIsAdmin] = useState<boolean>(true);
-	const [orders, setOrders] = useState<any[]>([]);
-	const [chartData, setChartData] = useState<any>({});
-	const [inputs, setInputs] = useState<any>({
-		startDate: "",
-		endDate: ""
-	});
+  const [monthData, setMonthData] = React.useState<any>({
+    previous: 0,
+    current: 0,
+    difference: 0
+  });
 
-	const navigate = useNavigate();
+  useEffect(() => {
+    loadMoneyData();
+  }, [])
+  const loadMoneyData = async () => {
 
-	const chart_ref = useRef(null);
-	const chart = useRef<any>(null);
-	const StateColors: any = {
-		[OrderStatus.Approved]: '#1a8307',
-		[OrderStatus.Requested]: '#1c5aec',
-		[OrderStatus.Finished]: '#0ed145',
-		[OrderStatus.Cancelled]: '#ec1c24',
-		[OrderStatus.Closed]: '#61f5ad',
-		[OrderStatus.Taken]: '#61f5ad',
-		[OrderStatus.Ongoing]: 'orange',
-		[OrderStatus.Received]: 'orange'
-	};
+    try{
 
-	useEffect(() => {
+      let now = new Date();
+      let this_month = Utils.getMonthStartAndEndDates(now.getFullYear(), now.getMonth());
+      let last_month = Utils.getMonthStartAndEndDates(now.getFullYear(), now.getMonth() - 1);
+      let current_month = await MainAPI.getAll(cookies.login_token, "rent", 1, 1000, {
+        condition: {
+          AND: [
+            {
+              date: { gt: this_month.start }
+            },
+            {
+              date: { lt: this_month.end }
+            }
+          ]
+        }
+      });
 
-		if(chart_ref.current){
+      let previous_month = await MainAPI.getAll(cookies.login_token, "rent", 1, 1000, {
+        condition: {
+          AND: [
+            {
+              date: { gt: last_month.start }
+            },
+            {
+              date: { lt: last_month.end }
+            }
+          ]
+        }
+      });
 
-			chart.current = new Chart(chart_ref.current, {
-				type: 'doughnut',
-				data: {
-					labels: [
-						'Approved',
-						'Requested',
-						'Finished',
-						'Cancelled',
-						'Completed',
-						'On Going'
-					],
-					datasets: [
-						{
-							label: 'Order Percentages',
-							data: [2, 3, 4, 5, 0, 7],
-							backgroundColor: [
-								'#1a8307',
-								'#1c5aec',
-								'#0ed145',
-								'#ec1c24',
-								'#61f5ad',
-								'orange'
-							],
-							hoverOffset: 4
-						}
-					]
-				},
-				options: {
-					// onClick: (e) => {
-					// const canvasPosition = getRelativePosition(e, chart);
-		
-					// // Substitute the appropriate scale IDs
-					// const dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
-					// const dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
-					// }
-				}
-			});
-	
-		}else {
-			console.log("element not found");
-		}
+      let temp = {
+        current: current_month.Items.reduce((ac: any, cr: any) => (ac + cr.total_price), 0),
+        previous: previous_month.Items.reduce((ac: any, cr: any) => (ac + cr.total_price), 0),
+        difference: 0
+      };
 
-		return () => {chart_ref.current = null}
+      let difference = temp.current - temp.previous;
+      if(difference < 0) {
+        temp.difference = parseFloat(((difference)/temp.current).toFixed(2)) * 100;
+      } else if(difference > 0) {
+        temp.difference = parseFloat(((difference)/temp.current).toFixed(2)) * 100;
+      }
 
-	}, []);
+      setMonthData(temp);
 
-	useEffect(() => {
-		// setIsAdmin(loggedUser.Roles.includes(UserRoles.ADMIN));
-		loadData()
-	}, []);
-	
-	useEffect(() => {
-		chart.current.data.datasets[0].data = [chartData.approved, chartData.requested, chartData.finished, chartData.cancelled, chartData.completed, chartData.ongoing];
-		chart.current.update();
+    } catch(error: any) {
+      setAlert(error.message, "error");
+    }
 
-	}, [chartData]);
+  }
 
-	const inputOnChange = async (event: any) => {
-		setInputs((inp: any) => ({...inp, [event.target.name]: event.target.value}));
-	}
+  return (
+    <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
 
-	const loadData = async () => {
+        {/* top nav */}
+        <div style={{ width: "100%", height: "40px", background: "white", borderRadius: "10px", marginBottom: "10px" }}></div>
 
-		let load_orders = await MainAPI.getorAll(cookies.login_token, "order", 1, 1000, ((inputs.startDate != "") ? [
-			{
-				name: "date",
-				operator: Operators.GREATER,
-				type: FieldTypes.DATE,
-				value: Utils.dateToISO(inputs.startDate)
-			},
-			{
-				name: "date",
-				operator: Operators.LESS,
-				type: FieldTypes.DATE,
-				value: Utils.dateToISO(inputs.endDate)
-			}
-		] : []));
+        <div style={{ display: "flex", flexDirection: "row", height: "100%", width: "100%", overflow: "hidden" }}>
 
-		setOrders(load_orders.Items);
+          {/* inner sidebar */}
+          <div style={{ width: "25%", height: "100%", background: "white", borderRadius: "10px", marginRight: "10px", padding: "10px" }}>
+            <Typography sx={{ mb: 0, fontSize: 15, color: '#525256' }}>This Month Statistics</Typography>
+            <Typography sx={{ mt: 0, mb: 2, fontSize: '10px', color: '##A3A3A3' }}>Tue, 14 Nov, 2024, 11.30 AM </Typography>
 
-		let chart_data = {
-			cancelled: 0,
-			requested: 0,
-			approved: 0,
-			finished: 0,
-			total_money: 0,
-			future_money: 0,
-			completed: 0,
-			ongoing: 0
-		};
+            {/* <div style={{width: "100%", height: "auto", borderRadius: "8px", marginBottom: '10px', boxShadow: "0 4px 10px 1px rgb(178, 178, 178)"}}> 
+            hey
+            </div> */}
+            <div style={{ width: "100%", height: "auto", borderRadius: "8px", marginBottom: '20px', boxShadow: "0 4px 10px 1px rgb(178, 178, 178)" }}>
+              <div style={{ padding: '16px', backgroundColor: 'white', borderRadius: '8px' }}>
 
-		load_orders.Items.forEach(ord => {
-			if(ord.state == OrderStatus.Cancelled) {
-				chart_data.cancelled += 1;
-			} else if(ord.state == OrderStatus.Requested) {
-				chart_data.requested += 1;
-			} else if(ord.state == OrderStatus.Finished) {
-				chart_data.finished += 1;
-			} else if(ord.state == OrderStatus.Approved) {
-				chart_data.approved += 1;
-			} else if([OrderStatus.Ongoing, OrderStatus.Received].includes(ord.state)) {
-				chart_data.ongoing += 1;
-			} else if(ord.state == OrderStatus.Paid || ord.state == OrderStatus.Closed || ord.state == OrderStatus.Taken) {
-				chart_data.completed += 1;
-			}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', paddingBottom: '5px', borderBottom: '1px solid #e0e0e0', }}>
+                  <h6 style={{ fontWeight: 'bold', fontSize: '13px', margin: 0 }}>Income</h6>
+                  <div style={{ padding: '4px 8px', borderRadius: '4px', backgroundColor: '#f0f0f0', fontSize: '11px', fontWeight: 'bold', color: '#666' }}>
+                    This Month
+                  </div>
+                </div>
 
-			if(ord.is_paid == "paid") {
-				chart_data.total_money += (ord.price ? parseInt(ord.price) : 0);
-			} else if(ord.state != OrderStatus.Cancelled) {
-				chart_data.future_money += (ord.price ? parseInt(ord.price) : 0);
-			}
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                  <h2 style={{ fontWeight: 'bold', margin: 0, marginRight: '8px', fontSize: "18px" }}>ETB {monthData.current}</h2>
+                  <span style={{ color: monthData.difference > 0 ? "green" : 'red', display: 'flex', alignItems: 'center', fontSize: '0.875rem' }}>
+                    <span style={{ fontSize: '16px', marginRight: '4px' }}>{
+                      monthData.difference > 0 ? (<NorthIcon sx={{ fontSize: '13px' }} />) : (<SouthIcon sx={{ fontSize: '13px' }} />)
+                    }</span>
+                    {monthData.difference}%
+                  </span>
+                </div>
 
-		});
+                <p style={{ color: '#888888', marginBottom: 0, fontSize: '10px' }}>
+                  Compared to ETB {monthData.current} last month
+                </p>
 
-		setChartData(chart_data);
-	}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 4 }}>
+                  <span style={{ fontWeight: 'bold', color: '#666', fontSize: '10px' }}>Last Month Income</span>
+                  <span style={{ fontWeight: 'bold', color: '#333', fontSize: '10px' }}>ETB {monthData.previous}</span>
+                </div>
+              </div>
+            </div>
+            <div style={{ width: "100%", height: "auto", borderRadius: "8px", boxShadow: "0 4px 10px 1px rgb(178, 178, 178)" }}>
+              <PieChartWithCenterLabel />
+            </div>
+          </div>
 
-	return (
-		<div className="" style={{width: "100vw", height: "100vh"}}>
-			<div className="w-100" style={{height: "35%", background: "black", overflow: "hidden", position: "relative", zIndex: "100"}}>
-				<img src="/images/dashboard_image.png" 
-					alt="computer user"
-					style={{width: "100%", position: "absolute", top: 0, left: 0, zIndex: -1}}
-				/>
-				<div className="w-100 d-flex justify-content-between mb-2 px-3 py-1">
-					<IconButton onClick={() => { setMenu(true) }}>
-						<Menu sx={{fontSize: 40, color: "white"}} />
-					</IconButton>
-				</div>
-				<h3 className="card-title text-white ms-4 mt-0" style={{fontWeight: "bolder"}}>Hello, {loggedUser.FullName}</h3>
-				<div className="d-flex justify-content-center mt-5">
-					<div className="rounded-4 p-2 me-4 bg-white shadow">
-						<input type="date" name="startDate" value={inputs.startDate} onChange={inputOnChange} className="form-control form-control-lg" placeholder="Start Date" />
-					</div>
-					<div className="rounded-4 p-2 me-4 bg-white shadow">
-						<input type="date" name="endDate" value={inputs.endDate} onChange={inputOnChange} className="form-control form-control-lg" placeholder="End Date" />
-					</div>
-					<button className="btn btn-lg btn-primary shadow" onClick={() => {loadData()}}>
-						<PlayArrow sx={{fontSize: 40, margin: "0 10px 0 0", color: "white"}} />
-						Run
-					</button>
-				</div>
-				
-			</div>
-			<div className="d-flex px-3 pt-3" style={{height: "65%", zIndex: "10"}}>
-				<div className="col-3 px-2 h-100 pb-3">
-					<div className="card shadow">
-						<div className="card-body">
-							<canvas ref={chart_ref} className="w-100" />
-                            <hr />
-                            <h6 className="card-title">Order Summary</h6>
-						</div>
-					</div>
-				</div>
-				<div className="col-6 px-2 h-100 pb-3">
-					<div className="card shadow h-100" style={{}}>
-                        <div className="card-body py-3 h-100" style={{overflow: "auto"}}>
-                            <div className="d-flex justify-content-between border-bottom">
-                                <h5 className="card-title">Last Orders</h5>
-                                <span className="card-title text-primary" onClick={() => {navigate(`/list/tbl_order`);}}>See All</span>
-                            </div>
-                            {/* <hr /> */}
-							{
-								orders.length > 0 ? (
-									orders.map(ord => (
-										<div className="py-3 border-bottom d-flex justify-content-between" onClick={() => {navigate(`/form/tbl_order/${ord.id}`);}}>
-											<div style={{width: "50%"}} className="d-flex justify-content-start">
-												<AppShortcutIcon sx={{fontSize: "40px", marginRight: "10px"}} />
-												<div className="col">
-													<h6 className="card-title mb-0">{ord.number}</h6>
-													<span className="card-subtitle" style={{color: StateColors[ord.state]}}>{ord.state}</span>
-												</div>
-											</div>
-											<div className="col">
-												<span className="card-title">{ord.service.title}</span>
-											</div>
-											<div className="col">
-												<span className="card-title"><strong>{ord.price ? `${ord.price}ETB` : "no price"}</strong></span>
-											</div>
-										</div>
-									))
-								) : (<h4 className="text-center">No order found</h4>)
-							}
-                        </div>
-                    </div>
-				</div>
-				<div className="col-3 px-2 h-100">
-					<div className="card shadow">
-                        <div className="card-body">
-                            <div className="py-3 border-bottom d-flex justify-content-start">
-                                <ShoppingCartIcon sx={{fontSize: "70px", marginRight: "10px"}} />
-                                <div className="col">
-                                    <span className="card-subtitle">Total Order</span>
-                                    <h2 className="card-title mb-0">{orders.length}</h2>
-                                </div>
-                            </div>
-                            <div className="py-3 border-bottom d-flex justify-content-start">
-                                <RemoveShoppingCartIcon sx={{fontSize: "70px", marginRight: "10px"}} />
-                                <div className="col">
-                                    <span className="card-subtitle">Cancelled Orders</span>
-                                    <h2 className="card-title mb-0">{chartData.cancelled}</h2>
-                                </div>
-                            </div>
-                            <div className="py-3 border-bottom d-flex justify-content-start">
-                                <AttachMoneyIcon sx={{fontSize: "70px", marginRight: "10px"}} />
-                                <div className="col">
-                                    <span className="card-subtitle">Total Money</span>
-                                    <h2 className="card-title mb-0">{chartData.total_money} ETB</h2>
-                                </div>
-                            </div>
-                            <div className="py-3 border-bottom d-flex justify-content-start">
-                                <AttachMoneyIcon sx={{fontSize: "70px", marginRight: "10px"}} />
-                                <div className="col">
-                                    <span className="card-subtitle">Future Money</span>
-                                    <h2 className="card-title mb-0">{chartData.future_money} ETB</h2>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-				</div>
-			</div>
-		</div>
-	);
+          {/* main content */}
+          <div style={{ display: "flex", flexDirection: "column", width: "75%", height: "100%" }}>
+            <div style={{ width: "100%", height: "65%", background: "white", marginBottom: "10px", borderRadius: "10px", padding: "10px", overflow: "auto" }}>
+              <TableCom />
+            </div>
+            <div style={{ width: "100%", height: "45%", background: "white",  padding: '10px',  borderRadius: "10px", overflow: "auto" }}>
+              <EarningSummaryChart  />
+            </div>
+          </div>
+
+        </div>
+      </div>
+  );
 }
-
-export default Dashboard;

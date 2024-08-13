@@ -2,17 +2,14 @@
 import React, { useContext, useState } from 'react';
 import { Box, TextField, Button, Checkbox, FormControlLabel, Link, Typography, Grid } from '@mui/material';
 import AlertContext from '../Contexts/AlertContext';
-import AuthContext from '../Contexts/AuthContext';
-import { normal } from '../APIs/api';
 import MainAPI from '../APIs/MainAPI';
 import { useNavigate } from 'react-router-dom';
 
 
 function SignUpPage() {
   const navigate = useNavigate();
-  const { setAlert, setWaiting, setMenu, menu } = useContext(AlertContext);
-  const { setLoggedUser, setLoggedIn, setCookie } = useContext(AuthContext);
-
+  const { setAlert} = useContext(AlertContext);
+ 
   const [data, setData] = useState({
     name:"",
     email: "",
@@ -30,7 +27,7 @@ function SignUpPage() {
 
   const onSubmit = async (event: any) => {
 
-    // event.preventDefault();
+   
 
     try {
 

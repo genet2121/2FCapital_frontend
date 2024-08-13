@@ -1,14 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { TextField, MenuItem, Button, Box, Typography, FormControl, InputLabel, Select, SelectChangeEvent, Hidden, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
-import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
-import ListItemText from '@mui/material/ListItemText';
-import Checkbox from '@mui/material/Checkbox';
-import OutlinedInput from '@mui/material/OutlinedInput';
+import { TextField, MenuItem, Button, Box, FormControl, InputLabel, Select } from '@mui/material';
 import AlertContext from '../Contexts/AlertContext';
 import MainAPI from '../APIs/MainAPI';
 import AuthContext from '../Contexts/AuthContext';
 import { useSearchParams } from 'react-router-dom';
+import Typography from '@mui/material/Typography';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import Link from '@mui/material/Link';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -25,6 +23,8 @@ function NewRent() {
 
   const {setAlert, setWaiting} = useContext(AlertContext);
   const {cookies} = useContext(AuthContext);
+  const { loggedUser } = useContext(AuthContext);
+
 
   const [queryParams, setQueryParams] = useSearchParams();
 
@@ -184,14 +184,30 @@ function NewRent() {
 
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", width: "100%", padding: "0 10px 0 0", height: "100%", position: "relative" }}>
+    <div style={{ display: "flex", flexDirection: "column", width: "100%", padding: "0 10px 0 0", height: "100%", position: "relative"}}>
 
         {/* top nav */}
         <div style={{display: "flex", width: "100%", height: "40px", background: "white", borderRadius: "10px", marginBottom: "10px", padding: "5px 2rem"}}>
-          <span style={{margin: "auto 0"}}>Owner/New Rent</span>
+          <span style={{margin: "auto 0"}}>
+          <Breadcrumbs aria-label="breadcrumb">
+          {
+            loggedUser.Roles.includes("admin") ? (
+              <Link underline="hover" color="inherit" href="/">
+                Administrator
+              </Link>
+            ) : (
+              <Link underline="hover" color="inherit" href="/">
+                Owner
+              </Link>
+            )
+          }
+        
+        <Typography color="text.primary">New Rent</Typography>
+      </Breadcrumbs>
+          </span>
         </div>
 
-        <div style={{background: "white", display: "flex", flexDirection: "row", height: "100%", width: "100%", borderRadius: "10px"}}>
+        <div style={{background: "white", display: "flex", flexDirection: "row", height: "100%", width: "100%", borderRadius: "10px", overflowY: "auto"}}>
 
             <Box
                 component="form"

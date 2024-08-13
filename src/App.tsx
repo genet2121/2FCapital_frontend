@@ -9,17 +9,10 @@ import { useCookies } from "react-cookie";
 import Error from "./Views/Error";
 import LoginPage from "./Views/Login";
 import AuthResult from "./Intefaces/AuthResult";
-import LocalData from "./Intefaces/LocalData";
-import MainAPI from "./APIs/MainAPI";
-import FieldTypes from "./Enums/FiedTypes";
-import Operators from "./Enums/Operators";
-import UserRoles from "./Enums/UserRoles";
-import Utils from "./Models/Utils";
 import SignUpPage from "./Views/SignUp";
-import MiniDrawer from "./Views/TestPage";
+import MiniDrawer from "./Views/Dashboard";
 import UserTable from "./Views/UserTable";
 import Workspace from "./Views/Workspace";
-import Chalenge from "./Views/Chalenge2";
 import SuccessDialog from "./Components/Reusables/SucessDilog";
 import OwnerTable from "./Views/OwnerTab";
 import AvailableBooks from "./Views/AvalableBooks";
@@ -27,8 +20,6 @@ import AbilityContext from "./Contexts/AbilityContext";
 import Authorization from "./Models/Authorization";
 import MainScreen from "./Views/MainScreen";
 import NewRent from "./Views/NewRent";
-import Chal from "./Views/Chale2";
-import ProductPage from "./Views/Chale2";
 import BookTable from "./Views/BookTable";
 import RentTable from "./Views/RentTable";
 
@@ -42,15 +33,7 @@ function App(params: any) {
     const [showWaiting, setWaiting] = useState<boolean>(false);
     const [alertType, setAlertType] = useState<"success" | "error" | "warning" | "info">("info");
     const [alertMessage, setMessage] = useState<string>("");
-    const [menu, setMenu] = useState<boolean>(false);
-    const [localData, setLocalData] = useState<LocalData>({
-        Users: [],
-        Services: [],
-        Devices: [],
-        Orders: [],
-        Repairs: [],
-        Technician: []
-    });
+    const [menu, setMenu] = useState<boolean>(true);
 
 
     const [ability, setAbility] = useState<any>(null);
@@ -92,25 +75,11 @@ function App(params: any) {
 
     }
 
-    const loadLocalData = async () => {
-
-        let temp_data = localData;
-        temp_data.Technician = (await MainAPI.getAll(cookies.login_token, "user", 1, 200, {
-            condition: {
-                type: FieldTypes.TEXT,
-                operator: Operators.IS,
-                value: UserRoles.MAINTAINER
-            }
-        })).Items.map((usr: any) => ({ value: usr.id, label: usr.name }));
-        setLocalData(temp_data);
-
-    }
-
     return (
         <AbilityContext.Provider value={ability}>
             <AlertContext.Provider value={{ showAlert, alertType, setAlertType, setAlert, setWaiting, menu, setMenu }}>
                 <AuthContext.Provider value={{
-                    isLoggedIn, loggedUser, setLoggedUser, setLoggedIn, setCookie, cookies, removeCookie, authWaiting, localData
+                    isLoggedIn, loggedUser, setLoggedUser, setLoggedIn, setCookie, cookies, removeCookie, authWaiting, setAbility
                 }}>
 
                     <BrowserRouter>
@@ -129,7 +98,6 @@ function App(params: any) {
                                             <Route path="" element={<MiniDrawer />}/>
                                             <Route path="user" element={<UserTable />}/>
                                             <Route path="new_book" element={<Workspace />}/>
-                                            <Route path="challenge" element={<Chalenge />}/>
                                             <Route path="success" element={<SuccessDialog />}/>
                                             <Route path="owner" element={<OwnerTable />}/>
                                             <Route path="new_rent" element={<NewRent />}/>
