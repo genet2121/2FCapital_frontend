@@ -57,9 +57,12 @@ const BookUploadForm = () => {
 
 
   useEffect(() => {
+
     if (isDialogOpen) {
       fetchCategories();
+
     }
+    fetchBooks();
   }, [isDialogOpen]);
 
   const fetchCategories = async () => {
@@ -67,6 +70,16 @@ const BookUploadForm = () => {
       const token = cookies.login_token;
       const condition = { type: 'book_category' };
       const response = await MainAPI.getAll(token, 'choice', 1, 10, condition);
+      setCategories(response.Items);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+  const fetchBooks = async () => {
+    try {
+      const token = cookies.login_token;
+      const condition = { type: 'book_category' };
+      const response = await MainAPI.getAll(token, 'book', 1, 10, condition);
       setCategories(response.Items);
     } catch (error) {
       console.error('Error fetching categories:', error);

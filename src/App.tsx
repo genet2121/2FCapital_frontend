@@ -29,6 +29,8 @@ import AbilityContext from "./Contexts/AbilityContext";
 import Authorization from "./Models/Authorization";
 import MainScreen from "./Views/MainScreen";
 import NewRent from "./Views/NewRent";
+import Chal from "./Views/Chale2";
+import ProductPage from "./Views/Chale2";
 
 function App(params: any) {
 
@@ -37,7 +39,7 @@ function App(params: any) {
     const [cookies, setCookie, removeCookie] = useCookies(["login_token"]);
     const [authWaiting, setAuthWaiting] = useState<boolean>(false);
     const [showAlert, setShowAlert] = useState<boolean>(false);
-    const [showWaiting, setWaiting] = useState<boolean>(true);
+    const [showWaiting, setWaiting] = useState<boolean>(false);
     const [alertType, setAlertType] = useState<"success" | "error" | "warning" | "info">("info");
     const [alertMessage, setMessage] = useState<string>("");
     const [menu, setMenu] = useState<boolean>(false);
@@ -204,11 +206,13 @@ function App(params: any) {
                                         <Routes>
                                             <Route path="/signup" element={<SignUpPage/>}/>
                                             <Route path="/" element={<LoginPage/>}/>
+                                            <Route path="/chal" element={<ProductPage/>}/>
                                             <Route path="*" element={<Error />} />
                                         </Routes>
                                     ) : (
                                         <Routes>
                                             <Route path="/" element={<MainScreen />}>
+                                            
                                                 <Route path="available_books" element={<AvailableBooks/>}/>
                                                 <Route path="" element={<MiniDrawer />}/>
                                                 <Route path="user" element={<UserTable />}/>
