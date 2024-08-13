@@ -62,7 +62,7 @@ function App(params: any) {
             setLoggedUser(response.data);
             setAbility(Authorization(response.data));
             // await loadLocalData();
-            setAuthWaiting(false);
+            setTimeout(() => { setAuthWaiting(false); }, 10);
             setTimeout(() => { setWaiting(false); }, 10);
 
         };
