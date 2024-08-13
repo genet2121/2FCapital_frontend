@@ -27,6 +27,8 @@ import AbilityContext from "./Contexts/AbilityContext";
 import Authorization from "./Models/Authorization";
 import MainScreen from "./Views/MainScreen";
 import NewRent from "./Views/NewRent";
+import Chal from "./Views/Chale2";
+import ProductPage from "./Views/Chale2";
 
 function App(params: any) {
 
