@@ -29,6 +29,8 @@ import MainScreen from "./Views/MainScreen";
 import NewRent from "./Views/NewRent";
 import Chal from "./Views/Chale2";
 import ProductPage from "./Views/Chale2";
+import BookTable from "./Views/BookTable";
+import RentTable from "./Views/RentTable";
 
 function App(params: any) {
 
@@ -131,6 +133,8 @@ function App(params: any) {
                                             <Route path="success" element={<SuccessDialog />}/>
                                             <Route path="owner" element={<OwnerTable />}/>
                                             <Route path="new_rent" element={<NewRent />}/>
+                                            <Route path="book" element={<BookTable />}/>
+                                            <Route path="rents" element={<RentTable />}/>
                                             <Route path="*" element={<Error />} />
                                         </Route>
                                     </Routes>

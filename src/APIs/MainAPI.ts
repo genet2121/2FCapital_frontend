@@ -22,17 +22,7 @@ class MainAPI {
     public static async getAll(token: string, tableName: string, pageNumber: number, pageSize: number, condition?: any): Promise<IPagination<any>> {
 
         try {
-            // let query = condition ? `?${Utils.objectToQueryString(condition)}` : "";
-            // let query = "";
-
-            // let new_condition: any = {};
-
-            // for (const key in condition) {
-            //     new_condition[key] = this.valueMapper(condition[key]);
-            // }
-            
             return await Authorized(token).bodyRequest("post", `crud/getlist/${tableName}/${pageNumber}/${pageSize}`, condition);
-
         } catch (error: any) {
             console.log(error.message);
             return {
@@ -47,17 +37,7 @@ class MainAPI {
     public static async getorAll(token: string, tableName: string, pageNumber: number, pageSize: number, condition?: any): Promise<IPagination<any>> {
 
         try {
-            // let query = condition ? `?${Utils.objectToQueryString(condition)}` : "";
-            // let query = "";
-
-            // let new_condition: any = {};
-
-            // for (const key in condition) {
-            //     new_condition[key] = this.valueMapper(condition);
-            // }
-            
             return await Authorized(token).bodyRequest("post", `crud/getorlist/${tableName}/${pageNumber}/${pageSize}?type=related`, condition ?? {});
-
         } catch (error: any) {
             console.log(error.message);
             return {
@@ -142,15 +122,17 @@ class MainAPI {
         }
     }
     public static async delete(token: string, table: string, id: number) {
-        return await Authorized(token).bodyRequest("delete", `crud/delete/${table}/${id}`);
+        return await Authorized(token).bodyRequest("post", `crud/delete/`, {
+            "tableName": table,
+            "id": [id]
+        });
     }
     
     public static async deleteList(token: string, table: string, id_s: number[]) {
-        return await Authorized(token).bodyRequest("post", `crud/deleteList/${table}`, { deleteList: id_s });
-        // try {
-        // } catch (error: any) {
-        //     return null;
-        // }
+        return await Authorized(token).bodyRequest("post", `crud/delete`, {
+            "tableName": table,
+            "id": id_s
+        });
     }
 
     public static async addAttachment(token: string, table: string, record: number, attachment: {file: any, name: string}){
