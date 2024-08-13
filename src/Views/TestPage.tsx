@@ -17,7 +17,8 @@ export default function MiniDrawer() {
 
   const [monthData, setMonthData] = React.useState<any>({
     previous: 0,
-    current: 0
+    current: 0,
+    difference: 0
   });
 
   useEffect(() => {
@@ -56,10 +57,20 @@ export default function MiniDrawer() {
         }
       });
 
-      setMonthData({
+      let temp = {
         current: current_month.Items.reduce((ac, cr) => (ac + cr.total_price), 0),
-        previous: previous_month.Items.reduce((ac, cr) => (ac + cr.total_price), 0)
-      });
+        previous: previous_month.Items.reduce((ac, cr) => (ac + cr.total_price), 0),
+        difference: 0
+      };
+
+      let difference = temp.current - temp.previous;
+      if(difference < 0) {
+        temp.difference = parseFloat(((difference)/temp.current).toFixed(2)) * 100;
+      } else if(difference > 0) {
+        temp.difference = parseFloat(((difference)/temp.current).toFixed(2)) * 100;
+      }
+
+      setMonthData(temp);
 
     } catch(error: any) {
       setAlert(error.message, "error");
@@ -95,11 +106,11 @@ export default function MiniDrawer() {
 
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
                   <h2 style={{ fontWeight: 'bold', margin: 0, marginRight: '8px', fontSize: "18px" }}>ETB {monthData.current}</h2>
-                  <span style={{ color: 'red', display: 'flex', alignItems: 'center', fontSize: '0.875rem' }}>
+                  <span style={{ color: monthData.difference > 0 ? "green" : 'red', display: 'flex', alignItems: 'center', fontSize: '0.875rem' }}>
                     <span style={{ fontSize: '16px', marginRight: '4px' }}>{
-                      monthData.current > monthData.previous ? (<NorthIcon sx={{ fontSize: '13px' }} />) : (<SouthIcon sx={{ fontSize: '13px' }} />)
+                      monthData.difference > 0 ? (<NorthIcon sx={{ fontSize: '13px' }} />) : (<SouthIcon sx={{ fontSize: '13px' }} />)
                     }</span>
-                    {parseFloat(`${(monthData.current - monthData.previous) * -1}`)/((monthData.current > monthData.previous) ? monthData.current : monthData.previous) * 100}%
+                    {monthData.difference}%
                   </span>
                 </div>
 
@@ -109,7 +120,7 @@ export default function MiniDrawer() {
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 4 }}>
                   <span style={{ fontWeight: 'bold', color: '#666', fontSize: '10px' }}>Last Month Income</span>
-                  <span style={{ fontWeight: 'bold', color: '#333', fontSize: '10px' }}>ETB {monthData.current}</span>
+                  <span style={{ fontWeight: 'bold', color: '#333', fontSize: '10px' }}>ETB {monthData.previous}</span>
                 </div>
               </div>
             </div>
