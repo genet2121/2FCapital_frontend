@@ -92,6 +92,32 @@ const Utils = {
         }
 
         return queryParams.join('&');
+    },
+
+    getIndexes: function (year: any, month: any) {
+
+        if (month < 0) {
+            year -= 1;
+            month = 11 + (month + 1);
+        } else if (month > 11) {
+            year += 1;
+            month = 0 + (month - 12);
+        }
+
+        return {year, month};
+
+    },
+
+    getMonthStartAndEndDates: function (year: any, month: any) {
+
+        let temp = this.getIndexes(year, month);
+
+        let start = new Date(temp.year, temp.month, 1);
+        temp = this.getIndexes(year, month + 1);
+        let end = new Date(temp.year, temp.month, 0);
+
+        return { start, end };
+
     }
     // objectToQueryString: function (obj: any) {
     //     const queryParams = [];

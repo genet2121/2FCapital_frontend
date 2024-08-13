@@ -1,30 +1,70 @@
 import * as React from 'react';
 import Typography from '@mui/material/Typography';
 import TableCom from '../Components/Reusables/TableCom';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import AlertContext from '../Contexts/AlertContext';
 import PieChartWithCenterLabel from '../Components/PieChart';
 import EarningSummaryChart from '../Components/Reusables/LineGraph';
 import SouthIcon from '@mui/icons-material/South';
+import NorthIcon from '@mui/icons-material/North';
 import MainAPI from '../APIs/MainAPI';
 import AuthContext from '../Contexts/AuthContext';
+import Utils from '../Models/Utils';
 export default function MiniDrawer() {
 
   const { setAlert, setWaiting, setMenu, menu } = useContext(AlertContext);
   const { cookies } = useContext(AuthContext);
 
-  const [open, setOpen] = React.useState(false);
+  const [monthData, setMonthData] = React.useState<any>({
+    previous: 0,
+    current: 0
+  });
 
+  useEffect(() => {
+    loadMoneyData();
+  }, [])
   const loadMoneyData = async () => {
 
-    let now = new Date();
-    let this_month_start = Math.floor(Date.parse(`${now.getFullYear()}-${now.getMonth() + 1}-1 00:00:00`)/1000)
-    let this_month_end = Math.floor(Date.parse(`${now.getFullYear() + ((now.getMonth() + 1) < 12 ? 0 : 1)}-${(now.getMonth() + 1) < 12 ? (now.getMonth() + 1) : 1}-1 00:00:00`)/1000);
-    let current_month = await MainAPI.getAll(cookies.login_token, "rent", 1, 1000, {
-      condition: {
+    try{
 
-      }
-    })
+      let now = new Date();
+      let this_month = Utils.getMonthStartAndEndDates(now.getFullYear(), now.getMonth());
+      let last_month = Utils.getMonthStartAndEndDates(now.getFullYear(), now.getMonth() - 1);
+      let current_month = await MainAPI.getAll(cookies.login_token, "rent", 1, 1000, {
+        condition: {
+          AND: [
+            {
+              date: { gt: this_month.start }
+            },
+            {
+              date: { lt: this_month.end }
+            }
+          ]
+        }
+      });
+
+      let previous_month = await MainAPI.getAll(cookies.login_token, "rent", 1, 1000, {
+        condition: {
+          AND: [
+            {
+              date: { gt: last_month.start }
+            },
+            {
+              date: { lt: last_month.end }
+            }
+          ]
+        }
+      });
+
+      setMonthData({
+        current: current_month.Items.reduce((ac, cr) => (ac + cr.total_price), 0),
+        previous: previous_month.Items.reduce((ac, cr) => (ac + cr.total_price), 0)
+      });
+
+    } catch(error: any) {
+      setAlert(error.message, "error");
+    }
+
   }
 
   return (
@@ -54,20 +94,22 @@ export default function MiniDrawer() {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                  <h2 style={{ fontWeight: 'bold', margin: 0, marginRight: '8px', fontSize: "18px" }}>ETB 9460.00</h2>
+                  <h2 style={{ fontWeight: 'bold', margin: 0, marginRight: '8px', fontSize: "18px" }}>ETB {monthData.current}</h2>
                   <span style={{ color: 'red', display: 'flex', alignItems: 'center', fontSize: '0.875rem' }}>
-                    <span style={{ fontSize: '16px', marginRight: '4px' }}><SouthIcon sx={{ fontSize: '16px' }} /></span>
-                    1.5%
+                    <span style={{ fontSize: '16px', marginRight: '4px' }}>{
+                      monthData.current > monthData.previous ? (<NorthIcon sx={{ fontSize: '13px' }} />) : (<SouthIcon sx={{ fontSize: '13px' }} />)
+                    }</span>
+                    {parseFloat(`${(monthData.current - monthData.previous) * -1}`)/((monthData.current > monthData.previous) ? monthData.current : monthData.previous) * 100}%
                   </span>
                 </div>
 
                 <p style={{ color: '#888888', marginBottom: 0, fontSize: '10px' }}>
-                  Compared to ETB9940 last month
+                  Compared to ETB {monthData.current} last month
                 </p>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 4 }}>
                   <span style={{ fontWeight: 'bold', color: '#666', fontSize: '10px' }}>Last Month Income</span>
-                  <span style={{ fontWeight: 'bold', color: '#333', fontSize: '10px' }}>ETB 25658.00</span>
+                  <span style={{ fontWeight: 'bold', color: '#333', fontSize: '10px' }}>ETB {monthData.current}</span>
                 </div>
               </div>
             </div>

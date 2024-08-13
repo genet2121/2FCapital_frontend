@@ -58,7 +58,7 @@ function NewRent() {
 
   useEffect(() => {
     if(currentRent) {
-      onBookChange(currentRent.upload_id);
+      fetchSelectedBook(currentRent.upload_id);
     }
   }, [currentRent]);
 
@@ -102,6 +102,15 @@ function NewRent() {
       setAllBooks(response.Items);
     } catch (error) {
       console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchSelectedBook = async (bk_id: number) => {
+    try {
+      const response = await MainAPI.getSingle(cookies.login_token, 'bookupload', bk_id);
+      setAllBooks(response);
+    } catch (error: any) {
+      setAlert(error.message, "error");
     }
   };
 
