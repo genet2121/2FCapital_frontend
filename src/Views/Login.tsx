@@ -41,12 +41,12 @@ function LoginPage() {
         try {
             let response = await Login(fields.Email, fields.Password);
             setLoggedUser(response);
-            setCookie("login_token", response.Token, { path: "/ts", maxAge: 86400 });
+            setCookie("login_token", response.Token, { path: "/", maxAge: 86400 });
             setLoggedIn(true);
 
             setWaiting(false);
             setAlert("working", "info");
-            navigate("/ts");
+            navigate("/");
         } catch (error: any) {
             setWaiting(false);
             setAlert(error.message, "error");

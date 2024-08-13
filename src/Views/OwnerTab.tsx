@@ -18,25 +18,13 @@ const OwnerTable = () => {
   
   const { setAlert, setWaiting, setMenu, menu } = useContext(AlertContext);
 
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
-  const eyuberegna = () => {
-    setOpen(!open);
-  }
   return (
     <div style={{  width: "100%", position: "relative", height:'100%'}}>
 
         {/* top nav */}
-        <div style={{width: "100%", height: "40px", background: "white", borderRadius: "10px", marginBottom: "10px", padding: '5px 20px', fontSize: '18px'}}>hey</div>
+        <div style={{width: "100%", height: "40px", background: "white", borderRadius: "10px", marginBottom: "10px", padding: '5px 20px', fontSize: '18px'}}>
+          Administrator/Owners
+        </div>
 
         <div style={{ width: "100%", overflowY: 'auto' }}>
 

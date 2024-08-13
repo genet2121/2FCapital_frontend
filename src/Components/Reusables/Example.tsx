@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -14,6 +14,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { QueryClient, QueryClientProvider, keepPreviousData, useQuery } from '@tanstack/react-query'; //note: this is TanStack React Query V5
 import React from 'react';
 import { Chip } from '@mui/material';
+import MainAPI from '../../APIs/MainAPI';
+import AuthContext from '../../Contexts/AuthContext';
+import AlertContext from '../../Contexts/AlertContext';
 
 type BookApiResponse = {
   data: Array<Book>;
@@ -31,6 +34,10 @@ type Book = {
 };
 
 const Example = () => {
+
+  const {cookies} = useContext(AuthContext);
+  const {setAlert} = useContext(AlertContext);
+
   const dummyData: Book[] = [
     { id: 1, bookNumber: 'BK001', bookName: 'The Great Gatsby', status: 'Free', price: '50' },
     { id: 2, bookNumber: 'BK002', bookName: '1984', status: 'Rented', price: '60' },
@@ -67,26 +74,46 @@ const Example = () => {
       sorting, 
     ],
     queryFn: async () => {
-      const fetchURL = new URL(
-        '/api/data',
-        process.env.NODE_ENV === 'production'
-          ? 'https://www.material-react-table.com'
-          : 'http://localhost:3000',
-      );
+      // const fetchURL = new URL(
+      //   '/api/data',
+      //   process.env.NODE_ENV === 'production'
+      //     ? 'https://www.material-react-table.com'
+      //     : 'http://localhost:3000',
+      // );
       
 
-      fetchURL.searchParams.set(
-        'start',
-        `${pagination.pageIndex * pagination.pageSize}`,
-      );
-      fetchURL.searchParams.set('size', `${pagination.pageSize}`);
-      fetchURL.searchParams.set('filters', JSON.stringify(columnFilters ?? []));
-      fetchURL.searchParams.set('globalFilter', globalFilter ?? '');
-      fetchURL.searchParams.set('sorting', JSON.stringify(sorting ?? []));
+      // fetchURL.searchParams.set(
+      //   'start',
+      //   `${pagination.pageIndex * pagination.pageSize}`,
+      // );
+      // fetchURL.searchParams.set('size', `${pagination.pageSize}`);
+      // fetchURL.searchParams.set('filters', JSON.stringify(columnFilters ?? []));
+      // fetchURL.searchParams.set('globalFilter', globalFilter ?? '');
+      // fetchURL.searchParams.set('sorting', JSON.stringify(sorting ?? []));
 
-      const response = await fetch(fetchURL.href);
-      const json = (await response.json()) as BookApiResponse;
-      return json;
+      // const response = await fetch(fetchURL.href);
+      // const json = (await response.json()) as BookApiResponse;
+      // return json;
+
+      let condition: any = {};
+      let sort: any = {};
+
+      columnFilters.forEach(cf => {
+        condition[cf.id] = { contains: cf.value };
+      });
+
+      sorting.forEach(srt => {
+        sort[srt.id] = (srt.desc ? "desc" : "asc");
+      });
+
+      const response = await MainAPI.getAll(cookies.login_token, "bookupload", 1, 10, {condition, sort});
+      return {
+        data: response.Items,
+        meta: {
+          totalRowCount: response.TotalCount
+        }
+      };
+
     },
     placeholderData: {
       data: dummyData,
@@ -105,7 +132,7 @@ const Example = () => {
         size: 10,
       },
       {
-        accessorKey: 'bookNumber',
+        accessorKey: 'book_id',
         header: 'Book no.',
         Cell: ({ cell }) => (
           <div style={{ backgroundColor: '#F3F4F6', padding: '8px', borderRadius: '8px' }}>
@@ -114,29 +141,27 @@ const Example = () => {
         ),
       },
       {
-        accessorKey: 'bookName',
+        accessorKey: 'book.name',
         header: 'Book Name',
       },
       {
-        accessorKey: 'status',
+        accessorKey: 'quantity',
         header: 'Status',
         Cell: ({ cell }) => (
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <span
               style={{
-                backgroundColor: cell.getValue<string>() === 'Rented' ? '#FF0000' : '#0000FF',
+                backgroundColor: cell.getValue<string>() === '0' ? '#FF0000' : '#0000FF',
                 width: '10px',
                 height: '10px',
                 borderRadius: '50%',
                 marginRight: '8px', 
               }}
             />
-            <span>{cell.getValue<string>()}</span>
+            <span>{cell.getValue<string>() == '0' ? "Rented" : "Available"}</span>
           </div>
         ),
       },
-      
-      
       {
         accessorKey: 'price',
         header: 'Price',
